@@ -1,223 +1,116 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { X, Save } from 'lucide-react';
-import { useData } from '../../contexts/DataContext';
 import { Product, ProductFormData } from '../../types';
+import { Input, TextArea, Select } from '../common/Input';
+import { Button } from '../common/Button';
+import { Modal } from '../common/Modal';
+import { useProductStore } from '../../stores';
 
 const FormContainer = styled.div`
-  padding: 24px;
-`;
-
-const FormHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #e2e8f0;
-`;
-
-const FormTitle = styled.h2`
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: #1e293b;
-`;
-
-const CloseButton = styled.button`
-  padding: 8px;
-  border: none;
-  background: none;
-  border-radius: 6px;
-  cursor: pointer;
-  color: #64748b;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background-color: #f1f5f9;
-    color: #1e293b;
-  }
-`;
-
-const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 20px;
 `;
 
-const FormGrid = styled.div`
+const FormRow = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 16px;
   
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
   }
 `;
 
-const FormGroup = styled.div<{ fullWidth?: boolean }>`
+const FormGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  grid-column: ${props => props.fullWidth ? '1 / -1' : 'auto'};
+  gap: 20px;
 `;
 
-const Label = styled.label`
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
-`;
-
-const Input = styled.input`
-  padding: 12px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-  
-  &:invalid {
-    border-color: #ef4444;
-  }
-`;
-
-const TextArea = styled.textarea`
-  padding: 12px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 14px;
-  min-height: 80px;
-  resize: vertical;
-  font-family: inherit;
-  transition: all 0.2s ease;
-  
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-`;
-
-const FormActions = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid #e2e8f0;
-`;
-
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  ${props => props.variant === 'primary' ? `
-    background-color: #3b82f6;
-    color: white;
-    
-    &:hover {
-      background-color: #2563eb;
-    }
-    
-    &:disabled {
-      background-color: #9ca3af;
-      cursor: not-allowed;
-    }
-  ` : `
-    background-color: #f8fafc;
-    color: #64748b;
-    border: 1px solid #e2e8f0;
-    
-    &:hover {
-      background-color: #f1f5f9;
-      color: #1e293b;
-    }
-  `}
-`;
-
-const ErrorMessage = styled.div`
-  color: #ef4444;
-  font-size: 12px;
-  margin-top: 4px;
-`;
+const CategoryOptions = [
+  { value: 'Kitchen & Dining', label: 'Kitchen & Dining' },
+  { value: 'Clothing', label: 'Clothing' },
+  { value: 'Electronics', label: 'Electronics' },
+  { value: 'Home & Garden', label: 'Home & Garden' },
+  { value: 'Sports & Outdoors', label: 'Sports & Outdoors' },
+  { value: 'Books & Media', label: 'Books & Media' },
+  { value: 'Health & Beauty', label: 'Health & Beauty' },
+  { value: 'Toys & Games', label: 'Toys & Games' },
+  { value: 'Automotive', label: 'Automotive' },
+  { value: 'Other', label: 'Other' },
+];
 
 interface ProductFormProps {
-  product?: Product | null;
+  product?: Product;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-export const ProductForm: React.FC<ProductFormProps> = ({ product, onClose }) => {
-  const { addProduct, updateProduct } = useData();
+export const ProductForm: React.FC<ProductFormProps> = ({
+  product,
+  onClose,
+  onSuccess
+}) => {
+  const { addProduct, updateProduct } = useProductStore();
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     description: '',
+    price: 0,
+    cost: 0,
     category: '',
-    price: '',
-    cost: '',
-    stockQuantity: '',
-    minStockLevel: '',
+    stockQuantity: 0,
+    minStockLevel: 0,
+    sku: '',
     imageUrl: '',
   });
-  const [errors, setErrors] = useState<Partial<ProductFormData>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (product) {
       setFormData({
         name: product.name,
         description: product.description,
+        price: product.price,
+        cost: product.cost,
         category: product.category,
-        price: product.price.toString(),
-        cost: product.cost.toString(),
-        stockQuantity: product.stockQuantity.toString(),
-        minStockLevel: product.minStockLevel.toString(),
+        stockQuantity: product.stockQuantity,
+        minStockLevel: product.minStockLevel,
+        sku: product.sku || '',
         imageUrl: product.imageUrl || '',
       });
     }
   }, [product]);
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<ProductFormData> = {};
+    const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
       newErrors.name = 'Product name is required';
     }
 
     if (!formData.description.trim()) {
-      newErrors.description = 'Description is required';
+      newErrors.description = 'Product description is required';
     }
 
-    if (!formData.category.trim()) {
-      newErrors.category = 'Category is required';
-    }
-
-    if (!formData.price || parseFloat(formData.price) <= 0) {
+    if (formData.price <= 0) {
       newErrors.price = 'Price must be greater than 0';
     }
 
-    if (!formData.cost || parseFloat(formData.cost) < 0) {
-      newErrors.cost = 'Cost must be 0 or greater';
+    if (formData.cost < 0) {
+      newErrors.cost = 'Cost cannot be negative';
     }
 
-    if (!formData.stockQuantity || parseInt(formData.stockQuantity) < 0) {
-      newErrors.stockQuantity = 'Stock quantity must be 0 or greater';
+    if (!formData.category) {
+      newErrors.category = 'Category is required';
     }
 
-    if (!formData.minStockLevel || parseInt(formData.minStockLevel) < 0) {
-      newErrors.minStockLevel = 'Min stock level must be 0 or greater';
+    if (formData.stockQuantity < 0) {
+      newErrors.stockQuantity = 'Stock quantity cannot be negative';
+    }
+
+    if (formData.minStockLevel < 0) {
+      newErrors.minStockLevel = 'Minimum stock level cannot be negative';
     }
 
     setErrors(newErrors);
@@ -231,173 +124,178 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onClose }) =>
       return;
     }
 
-    setIsSubmitting(true);
-
     try {
-      const productData = {
-        name: formData.name.trim(),
-        description: formData.description.trim(),
-        category: formData.category.trim(),
-        price: parseFloat(formData.price),
-        cost: parseFloat(formData.cost),
-        stockQuantity: parseInt(formData.stockQuantity),
-        minStockLevel: parseInt(formData.minStockLevel),
-        imageUrl: formData.imageUrl?.trim() || undefined,
-      };
-
       if (product) {
-        updateProduct({
-          ...product,
-          ...productData,
-        });
+        await updateProduct(product.id, formData);
       } else {
-        addProduct(productData);
+        await addProduct(formData);
       }
-
+      
+      onSuccess?.();
       onClose();
     } catch (error) {
       console.error('Error saving product:', error);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
-  const handleInputChange = (field: keyof ProductFormData, value: string) => {
+  const handleChange = (field: keyof ProductFormData, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+      setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
   return (
-    <FormContainer>
-      <FormHeader>
-        <FormTitle>{product ? 'Edit Product' : 'Add New Product'}</FormTitle>
-        <CloseButton onClick={onClose} type="button">
-          <X size={20} />
-        </CloseButton>
-      </FormHeader>
-
-      <Form onSubmit={handleSubmit}>
-        <FormGroup fullWidth>
-          <Label htmlFor="name">Product Name *</Label>
+    <form id="product-form" onSubmit={handleSubmit}>
+      <FormContainer>
+        <FormGroup>
           <Input
-            id="name"
-            type="text"
+            label="Product Name *"
             value={formData.name}
-            onChange={(e) => handleInputChange('name', e.target.value)}
+            onChange={(e) => handleChange('name', e.target.value)}
+            error={errors.name}
+            fullWidth
             placeholder="Enter product name"
-            required
           />
-          {errors.name && <ErrorMessage>{errors.name}</ErrorMessage>}
-        </FormGroup>
-
-        <FormGroup fullWidth>
-          <Label htmlFor="description">Description *</Label>
+          
           <TextArea
-            id="description"
+            label="Description *"
             value={formData.description}
-            onChange={(e) => handleInputChange('description', e.target.value)}
-            placeholder="Describe your product"
-            required
+            onChange={(e) => handleChange('description', e.target.value)}
+            error={errors.description}
+            fullWidth
+            placeholder="Enter product description"
           />
-          {errors.description && <ErrorMessage>{errors.description}</ErrorMessage>}
         </FormGroup>
 
-        <FormGrid>
-          <FormGroup>
-            <Label htmlFor="category">Category *</Label>
-            <Input
-              id="category"
-              type="text"
-              value={formData.category}
-              onChange={(e) => handleInputChange('category', e.target.value)}
-              placeholder="e.g., Jewelry, Pottery, Textiles"
-              required
-            />
-            {errors.category && <ErrorMessage>{errors.category}</ErrorMessage>}
-          </FormGroup>
+        <FormRow>
+          <Input
+            label="Price *"
+            type="number"
+            step="0.01"
+            min="0"
+            value={formData.price}
+            onChange={(e) => handleChange('price', parseFloat(e.target.value) || 0)}
+            error={errors.price}
+            fullWidth
+            placeholder="0.00"
+          />
+          
+          <Input
+            label="Cost"
+            type="number"
+            step="0.01"
+            min="0"
+            value={formData.cost}
+            onChange={(e) => handleChange('cost', parseFloat(e.target.value) || 0)}
+            error={errors.cost}
+            fullWidth
+            placeholder="0.00"
+          />
+        </FormRow>
 
-          <FormGroup>
-            <Label htmlFor="imageUrl">Image URL</Label>
-            <Input
-              id="imageUrl"
-              type="url"
-              value={formData.imageUrl}
-              onChange={(e) => handleInputChange('imageUrl', e.target.value)}
-              placeholder="https://example.com/image.jpg"
-            />
-          </FormGroup>
+        <FormRow>
+          <Select
+            label="Category *"
+            value={formData.category}
+            onChange={(e) => handleChange('category', e.target.value)}
+            options={CategoryOptions}
+            error={errors.category}
+            fullWidth
+          />
+          
+          <Input
+            label="SKU"
+            value={formData.sku}
+            onChange={(e) => handleChange('sku', e.target.value)}
+            fullWidth
+            placeholder="Product SKU (optional)"
+          />
+        </FormRow>
 
-          <FormGroup>
-            <Label htmlFor="price">Sale Price ($) *</Label>
-            <Input
-              id="price"
-              type="number"
-              step="0.01"
-              min="0"
-              value={formData.price}
-              onChange={(e) => handleInputChange('price', e.target.value)}
-              placeholder="0.00"
-              required
-            />
-            {errors.price && <ErrorMessage>{errors.price}</ErrorMessage>}
-          </FormGroup>
+        <FormRow>
+          <Input
+            label="Stock Quantity"
+            type="number"
+            min="0"
+            value={formData.stockQuantity}
+            onChange={(e) => handleChange('stockQuantity', parseInt(e.target.value) || 0)}
+            error={errors.stockQuantity}
+            fullWidth
+            placeholder="0"
+          />
+          
+          <Input
+            label="Minimum Stock Level"
+            type="number"
+            min="0"
+            value={formData.minStockLevel}
+            onChange={(e) => handleChange('minStockLevel', parseInt(e.target.value) || 0)}
+            error={errors.minStockLevel}
+            fullWidth
+            placeholder="0"
+          />
+        </FormRow>
 
-          <FormGroup>
-            <Label htmlFor="cost">Cost ($) *</Label>
-            <Input
-              id="cost"
-              type="number"
-              step="0.01"
-              min="0"
-              value={formData.cost}
-              onChange={(e) => handleInputChange('cost', e.target.value)}
-              placeholder="0.00"
-              required
-            />
-            {errors.cost && <ErrorMessage>{errors.cost}</ErrorMessage>}
-          </FormGroup>
+        <Input
+          label="Image URL"
+          type="url"
+          value={formData.imageUrl}
+          onChange={(e) => handleChange('imageUrl', e.target.value)}
+          fullWidth
+          placeholder="https://example.com/image.jpg"
+        />
+      </FormContainer>
+    </form>
+  );
+};
 
-          <FormGroup>
-            <Label htmlFor="stockQuantity">Stock Quantity *</Label>
-            <Input
-              id="stockQuantity"
-              type="number"
-              min="0"
-              value={formData.stockQuantity}
-              onChange={(e) => handleInputChange('stockQuantity', e.target.value)}
-              placeholder="0"
-              required
-            />
-            {errors.stockQuantity && <ErrorMessage>{errors.stockQuantity}</ErrorMessage>}
-          </FormGroup>
+interface ProductFormModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  product?: Product;
+}
 
-          <FormGroup>
-            <Label htmlFor="minStockLevel">Min Stock Level *</Label>
-            <Input
-              id="minStockLevel"
-              type="number"
-              min="0"
-              value={formData.minStockLevel}
-              onChange={(e) => handleInputChange('minStockLevel', e.target.value)}
-              placeholder="0"
-              required
-            />
-            {errors.minStockLevel && <ErrorMessage>{errors.minStockLevel}</ErrorMessage>}
-          </FormGroup>
-        </FormGrid>
+export const ProductFormModal: React.FC<ProductFormModalProps> = ({
+  isOpen,
+  onClose,
+  product
+}) => {
+  const { loading } = useProductStore();
 
-        <FormActions>
-          <Button type="button" variant="secondary" onClick={onClose}>
+  const handleSuccess = () => {
+    // Optionally show success message
+    console.log('Product saved successfully');
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={product ? 'Edit Product' : 'Add New Product'}
+      size="lg"
+      footer={
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" variant="primary" disabled={isSubmitting}>
-            <Save size={16} />
-            {isSubmitting ? 'Saving...' : product ? 'Update Product' : 'Add Product'}
+          <Button 
+            type="submit" 
+            form="product-form"
+            loading={loading}
+            disabled={loading}
+          >
+            {product ? 'Update Product' : 'Add Product'}
           </Button>
-        </FormActions>
-      </Form>
-    </FormContainer>
+        </div>
+      }
+    >
+      <ProductForm
+        product={product}
+        onClose={onClose}
+        onSuccess={handleSuccess}
+      />
+    </Modal>
   );
 };

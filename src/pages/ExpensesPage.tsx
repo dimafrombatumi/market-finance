@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Plus, Receipt, TrendingUp, TrendingDown, Edit, Trash2 } from 'lucide-react';
-import { useData } from '../contexts/DataContext';
-import { Transaction } from '../types';
-import { TransactionForm } from '../components/expenses/TransactionForm';
+import { useTransactionStore } from '../stores';
+import { TransactionFormModal } from '../components/transactions/TransactionForm';
+import { ConfirmDialog } from '../components/common/ConfirmDialog';
+import { LoadingSpinner } from '../components/common/LoadingSpinner';
 
 const ExpensesContainer = styled.div`
   display: flex;
@@ -113,21 +114,21 @@ const TransactionActions = styled.div`
   gap: 8px;
 `;
 
-const ActionButton = styled.button<{ variant?: 'edit' | 'delete' }>`
+const ActionButton = styled.button<{ $variant?: 'edit' | 'delete' }>`
   padding: 6px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
   background-color: ${props => {
-    switch (props.variant) {
+    switch (props.$variant) {
       case 'edit': return 'rgba(59, 130, 246, 0.1)';
       case 'delete': return 'rgba(239, 68, 68, 0.1)';
       default: return 'rgba(0, 0, 0, 0.1)';
     }
   }};
   color: ${props => {
-    switch (props.variant) {
+    switch (props.$variant) {
       case 'edit': return '#3b82f6';
       case 'delete': return '#ef4444';
       default: return '#6b7280';
@@ -156,33 +157,16 @@ const EmptyState = styled.div`
   }
 `;
 
-const Modal = styled.div<{ isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: ${props => props.isOpen ? 'flex' : 'none'};
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-`;
-
-const ModalContent = styled.div`
-  background: white;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow-y: auto;
-  margin: 20px;
-`;
 
 export const ExpensesPage: React.FC = () => {
-  const { state, deleteTransaction } = useData();
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [isTransactionFormOpen, setIsTransactionFormOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<any>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; transaction: any }>({
+    isOpen: false,
+    transaction: null
+  });
+
+  const { getTransactionsByType, deleteTransaction, loading } = useTransactionStore();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -201,37 +185,51 @@ export const ExpensesPage: React.FC = () => {
     }).format(date);
   };
 
-  // Filter out sales transactions (they're shown in sales page)
-  const transactions = state.transactions.filter(t => t.type !== 'sale');
-  const sortedTransactions = [...transactions].sort(
+  // Get income and expense transactions (excluding sales)
+  const incomeTransactions = getTransactionsByType('income');
+  const expenseTransactions = getTransactionsByType('expense');
+  const filteredTransactions = [...incomeTransactions, ...expenseTransactions];
+  
+  const sortedTransactions = [...filteredTransactions].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
+  // Handlers using Zustand store
   const handleAddTransaction = () => {
     setEditingTransaction(null);
-    setIsFormOpen(true);
+    setIsTransactionFormOpen(true);
   };
 
-  const handleEditTransaction = (transaction: Transaction) => {
+  const handleEditTransaction = (transaction: any) => {
     setEditingTransaction(transaction);
-    setIsFormOpen(true);
+    setIsTransactionFormOpen(true);
   };
 
-  const handleDeleteTransaction = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this transaction?')) {
-      deleteTransaction(id);
+  const handleDeleteTransaction = (transaction: any) => {
+    setDeleteConfirm({ isOpen: true, transaction });
+  };
+
+  const confirmDelete = async () => {
+    if (deleteConfirm.transaction) {
+      await deleteTransaction(deleteConfirm.transaction.id);
+      setDeleteConfirm({ isOpen: false, transaction: null });
     }
   };
 
-  const handleFormClose = () => {
-    setIsFormOpen(false);
+  const closeTransactionForm = () => {
+    setIsTransactionFormOpen(false);
     setEditingTransaction(null);
   };
+
+  // Show loading spinner while data is being fetched
+  if (loading && filteredTransactions.length === 0) {
+    return <LoadingSpinner text="Loading transactions..." />;
+  }
 
   return (
     <ExpensesContainer>
       <Header>
-        <HeaderTitle>Expenses & Income ({transactions.length})</HeaderTitle>
+        <HeaderTitle>Expenses & Income ({filteredTransactions.length})</HeaderTitle>
         <AddTransactionButton onClick={handleAddTransaction}>
           <Plus size={18} />
           Add Transaction
@@ -242,7 +240,7 @@ export const ExpensesPage: React.FC = () => {
         {sortedTransactions.length > 0 ? (
           sortedTransactions.map(transaction => (
             <TransactionItem key={transaction.id}>
-              <TransactionIcon type={transaction.type}>
+              <TransactionIcon type={transaction.type as 'income' | 'expense'}>
                 {transaction.type === 'income' ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
               </TransactionIcon>
               
@@ -254,7 +252,7 @@ export const ExpensesPage: React.FC = () => {
                 </div>
               </TransactionInfo>
               
-              <TransactionAmount type={transaction.type}>
+              <TransactionAmount type={transaction.type as 'income' | 'expense'}>
                 {transaction.type === 'expense' ? '-' : '+'}
                 {formatCurrency(transaction.amount)}
               </TransactionAmount>
@@ -264,18 +262,18 @@ export const ExpensesPage: React.FC = () => {
               </TransactionDate>
               
               <TransactionActions>
-                <ActionButton 
-                  variant="edit" 
-                  onClick={() => handleEditTransaction(transaction)}
-                >
-                  <Edit size={16} />
-                </ActionButton>
-                <ActionButton 
-                  variant="delete" 
-                  onClick={() => handleDeleteTransaction(transaction.id)}
-                >
-                  <Trash2 size={16} />
-                </ActionButton>
+                      <ActionButton 
+                        $variant="edit" 
+                        onClick={() => handleEditTransaction(transaction)}
+                      >
+                        <Edit size={16} />
+                      </ActionButton>
+                      <ActionButton 
+                        $variant="delete" 
+                        onClick={() => handleDeleteTransaction(transaction)}
+                      >
+                        <Trash2 size={16} />
+                      </ActionButton>
               </TransactionActions>
             </TransactionItem>
           ))
@@ -288,14 +286,26 @@ export const ExpensesPage: React.FC = () => {
         )}
       </TransactionsList>
 
-      <Modal isOpen={isFormOpen}>
-        <ModalContent>
-          <TransactionForm
-            transaction={editingTransaction}
-            onClose={handleFormClose}
-          />
-        </ModalContent>
-      </Modal>
+      {/* Transaction Form Modal */}
+      <TransactionFormModal
+        isOpen={isTransactionFormOpen}
+        onClose={closeTransactionForm}
+        transaction={editingTransaction}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, transaction: null })}
+        onConfirm={confirmDelete}
+        title="Delete Transaction"
+        message={`Are you sure you want to delete this transaction? This action cannot be undone.`}
+        type="danger"
+        confirmText="Delete"
+        cancelText="Cancel"
+        loading={loading}
+      />
+
     </ExpensesContainer>
   );
 };

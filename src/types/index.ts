@@ -1,19 +1,19 @@
-// Product Types
+// Core Business Types
 export interface Product {
   id: string;
   name: string;
   description: string;
-  category: string;
   price: number;
-  cost: number; // Cost to make/acquire
+  cost: number;
+  category: string;
   stockQuantity: number;
   minStockLevel: number;
+  sku?: string;
   imageUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-// Sale Types
 export interface SaleItem {
   productId: string;
   productName: string;
@@ -24,16 +24,20 @@ export interface SaleItem {
 
 export interface Sale {
   id: string;
-  items: SaleItem[];
-  totalAmount: number;
-  paymentMethod: 'cash' | 'card' | 'online' | 'other';
+  saleDate: Date;
   customerName?: string;
   customerEmail?: string;
-  saleDate: Date;
+  customerPhone?: string;
+  items: SaleItem[];
+  subtotal: number;
+  taxAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  paymentMethod: 'cash' | 'card' | 'online' | 'other';
   notes?: string;
+  status: 'completed' | 'pending' | 'cancelled';
 }
 
-// Financial Transaction Types
 export interface Transaction {
   id: string;
   type: 'income' | 'expense' | 'sale';
@@ -41,10 +45,10 @@ export interface Transaction {
   description: string;
   amount: number;
   date: Date;
-  referenceId?: string; // Links to sale ID if it's a sale transaction
+  referenceId?: string;
+  notes?: string;
 }
 
-// Dashboard/Report Types
 export interface DashboardData {
   totalRevenue: number;
   totalExpenses: number;
@@ -52,13 +56,6 @@ export interface DashboardData {
   totalSales: number;
   lowStockItems: Product[];
   recentTransactions: Transaction[];
-}
-
-export interface ReportFilters {
-  startDate?: Date;
-  endDate?: Date;
-  category?: string;
-  type?: 'income' | 'expense' | 'sale' | 'all';
 }
 
 // UI Types
@@ -74,22 +71,25 @@ export type ThemeMode = 'light' | 'dark';
 export interface ProductFormData {
   name: string;
   description: string;
+  price: number;
+  cost: number;
   category: string;
-  price: string;
-  cost: string;
-  stockQuantity: string;
-  minStockLevel: string;
+  stockQuantity: number;
+  minStockLevel: number;
+  sku?: string;
   imageUrl?: string;
 }
 
 export interface SaleFormData {
-  items: Array<{
-    productId: string;
-    quantity: number;
-  }>;
-  paymentMethod: 'cash' | 'card' | 'online' | 'other';
   customerName?: string;
   customerEmail?: string;
+  customerPhone?: string;
+  items: SaleItem[];
+  subtotal: number;
+  taxAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  paymentMethod: 'cash' | 'card' | 'online' | 'other';
   notes?: string;
 }
 
@@ -97,6 +97,28 @@ export interface TransactionFormData {
   type: 'income' | 'expense';
   category: string;
   description: string;
-  amount: string;
-  date: string;
+  amount: number;
+  date: Date;
+  notes?: string;
+}
+
+// Chart Data Types
+export interface ChartDataPoint {
+  name: string;
+  value: number;
+  [key: string]: any;
+}
+
+export interface CategoryBreakdown {
+  category: string;
+  amount: number;
+  name: string;
+  value: number;
+}
+
+export interface MonthlyTrend {
+  month: string;
+  revenue: number;
+  expenses: number;
+  profit: number;
 }

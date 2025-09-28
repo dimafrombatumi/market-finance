@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Plus, Search, Edit, Trash2, Package, AlertTriangle } from 'lucide-react';
-import { useData } from '../contexts/DataContext';
-import { Product } from '../types';
-import { ProductForm } from '../components/products/ProductForm';
+import { useProductStore } from '../stores';
+import { ProductFormModal } from '../components/products/ProductForm';
+import { ConfirmDialog } from '../components/common/ConfirmDialog';
+import { LoadingSpinner } from '../components/common/LoadingSpinner';
 
 const ProductsContainer = styled.div`
   display: flex;
@@ -120,21 +121,21 @@ const ProductActions = styled.div`
   gap: 8px;
 `;
 
-const ActionButton = styled.button<{ variant?: 'edit' | 'delete' }>`
+const ActionButton = styled.button<{ $variant?: 'edit' | 'delete' }>`
   padding: 6px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
   background-color: ${props => {
-    switch (props.variant) {
+    switch (props.$variant) {
       case 'edit': return 'rgba(59, 130, 246, 0.1)';
       case 'delete': return 'rgba(239, 68, 68, 0.1)';
       default: return 'rgba(0, 0, 0, 0.1)';
     }
   }};
   color: ${props => {
-    switch (props.variant) {
+    switch (props.$variant) {
       case 'edit': return '#3b82f6';
       case 'delete': return '#ef4444';
       default: return '#6b7280';
@@ -206,34 +207,21 @@ const EmptyState = styled.div`
   }
 `;
 
-const Modal = styled.div<{ isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: ${props => props.isOpen ? 'flex' : 'none'};
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-`;
-
-const ModalContent = styled.div`
-  background: white;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-  margin: 20px;
-`;
 
 export const ProductsPage: React.FC = () => {
-  const { state, deleteProduct } = useData();
   const [searchQuery, setSearchQuery] = useState('');
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isProductFormOpen, setIsProductFormOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; product: any }>({
+    isOpen: false,
+    product: null
+  });
+  
+  // Use Zustand store
+  const { searchProducts, deleteProduct, loading } = useProductStore();
+  
+  // Use store's search function
+  const products = searchProducts(searchQuery);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -242,32 +230,38 @@ export const ProductsPage: React.FC = () => {
     }).format(amount);
   };
 
-  const filteredProducts = state.products.filter(product =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
+  // Handlers using Zustand store
   const handleAddProduct = () => {
     setEditingProduct(null);
-    setIsFormOpen(true);
+    setIsProductFormOpen(true);
   };
 
-  const handleEditProduct = (product: Product) => {
+  const handleEditProduct = (product: any) => {
     setEditingProduct(product);
-    setIsFormOpen(true);
+    setIsProductFormOpen(true);
   };
 
-  const handleDeleteProduct = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      deleteProduct(id);
+  const handleDeleteProduct = (product: any) => {
+    setDeleteConfirm({ isOpen: true, product });
+  };
+
+  const confirmDelete = async () => {
+    if (deleteConfirm.product) {
+      await deleteProduct(deleteConfirm.product.id);
+      setDeleteConfirm({ isOpen: false, product: null });
     }
   };
 
-  const handleFormClose = () => {
-    setIsFormOpen(false);
+  const closeProductForm = () => {
+    setIsProductFormOpen(false);
     setEditingProduct(null);
   };
+
+  // Show loading spinner while data is being fetched
+  if (loading && products.length === 0) {
+    return <LoadingSpinner text="Loading products..." />;
+  }
 
   return (
     <ProductsContainer>
@@ -289,8 +283,8 @@ export const ProductsPage: React.FC = () => {
       </Header>
 
       <ProductsGrid>
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map(product => {
+        {products.length > 0 ? (
+          products.map(product => {
             const isLowStock = product.stockQuantity <= product.minStockLevel;
             
             return (
@@ -304,14 +298,14 @@ export const ProductsPage: React.FC = () => {
                     <ProductTitle>{product.name}</ProductTitle>
                     <ProductActions>
                       <ActionButton 
-                        variant="edit" 
+                        $variant="edit" 
                         onClick={() => handleEditProduct(product)}
                       >
                         <Edit size={16} />
                       </ActionButton>
                       <ActionButton 
-                        variant="delete" 
-                        onClick={() => handleDeleteProduct(product.id)}
+                        $variant="delete" 
+                        onClick={() => handleDeleteProduct(product)}
                       >
                         <Trash2 size={16} />
                       </ActionButton>
@@ -361,14 +355,26 @@ export const ProductsPage: React.FC = () => {
         )}
       </ProductsGrid>
 
-      <Modal isOpen={isFormOpen}>
-        <ModalContent>
-          <ProductForm
-            product={editingProduct}
-            onClose={handleFormClose}
-          />
-        </ModalContent>
-      </Modal>
+      {/* Product Form Modal */}
+      <ProductFormModal
+        isOpen={isProductFormOpen}
+        onClose={closeProductForm}
+        product={editingProduct}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, product: null })}
+        onConfirm={confirmDelete}
+        title="Delete Product"
+        message={`Are you sure you want to delete "${deleteConfirm.product?.name}"? This action cannot be undone.`}
+        type="danger"
+        confirmText="Delete"
+        cancelText="Cancel"
+        loading={loading}
+      />
+
     </ProductsContainer>
   );
 };

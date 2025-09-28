@@ -8,7 +8,8 @@ import {
   AlertTriangle,
   Activity
 } from 'lucide-react';
-import { useData } from '../contexts/DataContext';
+import { useDashboardStore } from '../stores';
+import { LoadingSpinner } from '../components/common/LoadingSpinner';
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -23,13 +24,13 @@ const StatsGrid = styled.div`
   margin-bottom: 24px;
 `;
 
-const StatCard = styled.div<{ variant?: 'success' | 'danger' | 'warning' | 'info' }>`
+const StatCard = styled.div<{ $variant?: 'success' | 'danger' | 'warning' | 'info' }>`
   background: white;
   padding: 24px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border-left: 4px solid ${props => {
-    switch (props.variant) {
+    switch (props.$variant) {
       case 'success': return '#10b981';
       case 'danger': return '#ef4444';
       case 'warning': return '#f59e0b';
@@ -60,11 +61,11 @@ const StatTitle = styled.h3`
   letter-spacing: 0.5px;
 `;
 
-const StatIcon = styled.div<{ variant?: 'success' | 'danger' | 'warning' | 'info' }>`
+const StatIcon = styled.div<{ $variant?: 'success' | 'danger' | 'warning' | 'info' }>`
   padding: 8px;
   border-radius: 8px;
   background-color: ${props => {
-    switch (props.variant) {
+    switch (props.$variant) {
       case 'success': return 'rgba(16, 185, 129, 0.1)';
       case 'danger': return 'rgba(239, 68, 68, 0.1)';
       case 'warning': return 'rgba(245, 158, 11, 0.1)';
@@ -73,7 +74,7 @@ const StatIcon = styled.div<{ variant?: 'success' | 'danger' | 'warning' | 'info
     }
   }};
   color: ${props => {
-    switch (props.variant) {
+    switch (props.$variant) {
       case 'success': return '#10b981';
       case 'danger': return '#ef4444';
       case 'warning': return '#f59e0b';
@@ -90,9 +91,9 @@ const StatValue = styled.div`
   margin-bottom: 4px;
 `;
 
-const StatChange = styled.div<{ positive?: boolean }>`
+const StatChange = styled.div<{ $positive?: boolean }>`
   font-size: 12px;
-  color: ${props => props.positive ? '#10b981' : '#ef4444'};
+  color: ${props => props.$positive ? '#10b981' : '#ef4444'};
   display: flex;
   align-items: center;
   gap: 4px;
@@ -167,10 +168,10 @@ const TransactionInfo = styled.div`
   }
 `;
 
-const TransactionAmount = styled.div<{ type: 'income' | 'expense' | 'sale' }>`
+const TransactionAmount = styled.div<{ $type: 'income' | 'expense' | 'sale' }>`
   font-weight: 600;
   color: ${props => {
-    switch (props.type) {
+    switch (props.$type) {
       case 'income':
       case 'sale':
         return '#10b981';
@@ -194,8 +195,29 @@ const EmptyState = styled.div`
 `;
 
 export const Dashboard: React.FC = () => {
-  const { getDashboardData } = useData();
-  const dashboardData = getDashboardData();
+  // Use Zustand store
+  const {
+    getTotalRevenue,
+    getTotalExpenses,
+    getNetProfit,
+    getTotalSales,
+    getLowStockItems,
+    getRecentTransactions,
+    loading
+  } = useDashboardStore();
+  
+  // Get dashboard data from store
+  const totalRevenue = getTotalRevenue();
+  const totalExpenses = getTotalExpenses();
+  const netProfit = getNetProfit();
+  const totalSales = getTotalSales();
+  const lowStockItems = getLowStockItems();
+  const recentTransactions = getRecentTransactions();
+
+  // Show loading spinner while data is being fetched
+  if (loading) {
+    return <LoadingSpinner text="Loading dashboard data..." />;
+  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -216,57 +238,57 @@ export const Dashboard: React.FC = () => {
   return (
     <DashboardContainer>
       <StatsGrid>
-        <StatCard variant="success">
+        <StatCard $variant="success">
           <StatHeader>
             <StatTitle>Total Revenue</StatTitle>
-            <StatIcon variant="success">
+            <StatIcon $variant="success">
               <TrendingUp size={20} />
             </StatIcon>
           </StatHeader>
-          <StatValue>{formatCurrency(dashboardData.totalRevenue)}</StatValue>
-          <StatChange positive>
+          <StatValue>{formatCurrency(totalRevenue)}</StatValue>
+          <StatChange $positive>
             <TrendingUp size={12} />
             This month
           </StatChange>
         </StatCard>
 
-        <StatCard variant="danger">
+        <StatCard $variant="danger">
           <StatHeader>
             <StatTitle>Total Expenses</StatTitle>
-            <StatIcon variant="danger">
+            <StatIcon $variant="danger">
               <TrendingDown size={20} />
             </StatIcon>
           </StatHeader>
-          <StatValue>{formatCurrency(dashboardData.totalExpenses)}</StatValue>
+          <StatValue>{formatCurrency(totalExpenses)}</StatValue>
           <StatChange>
             <TrendingDown size={12} />
             This month
           </StatChange>
         </StatCard>
 
-        <StatCard variant="info">
+        <StatCard $variant="info">
           <StatHeader>
             <StatTitle>Net Profit</StatTitle>
-            <StatIcon variant="info">
+            <StatIcon $variant="info">
               <DollarSign size={20} />
             </StatIcon>
           </StatHeader>
-          <StatValue>{formatCurrency(dashboardData.netProfit)}</StatValue>
-          <StatChange positive={dashboardData.netProfit >= 0}>
-            {dashboardData.netProfit >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-            {dashboardData.netProfit >= 0 ? 'Profit' : 'Loss'}
+          <StatValue>{formatCurrency(netProfit)}</StatValue>
+          <StatChange $positive={netProfit >= 0}>
+            {netProfit >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+            {netProfit >= 0 ? 'Profit' : 'Loss'}
           </StatChange>
         </StatCard>
 
-        <StatCard variant="warning">
+        <StatCard $variant="warning">
           <StatHeader>
             <StatTitle>Total Sales</StatTitle>
-            <StatIcon variant="warning">
+            <StatIcon $variant="warning">
               <ShoppingCart size={20} />
             </StatIcon>
           </StatHeader>
-          <StatValue>{dashboardData.totalSales}</StatValue>
-          <StatChange positive>
+          <StatValue>{totalSales}</StatValue>
+          <StatChange $positive>
             <Activity size={12} />
             Transactions
           </StatChange>
@@ -279,14 +301,14 @@ export const Dashboard: React.FC = () => {
             <h3>Recent Transactions</h3>
           </CardHeader>
           <CardContent>
-            {dashboardData.recentTransactions.length > 0 ? (
-              dashboardData.recentTransactions.map(transaction => (
+            {recentTransactions.length > 0 ? (
+              recentTransactions.map(transaction => (
                 <TransactionItem key={transaction.id}>
                   <TransactionInfo>
                     <div className="description">{transaction.description}</div>
                     <div className="date">{formatDate(transaction.date)}</div>
                   </TransactionInfo>
-                  <TransactionAmount type={transaction.type}>
+                  <TransactionAmount $type={transaction.type}>
                     {transaction.type === 'expense' ? '-' : '+'}
                     {formatCurrency(transaction.amount)}
                   </TransactionAmount>
@@ -306,8 +328,8 @@ export const Dashboard: React.FC = () => {
             <h3>Low Stock Alerts</h3>
           </CardHeader>
           <CardContent>
-            {dashboardData.lowStockItems.length > 0 ? (
-              dashboardData.lowStockItems.map(product => (
+            {lowStockItems.length > 0 ? (
+              lowStockItems.map(product => (
                 <AlertItem key={product.id}>
                   <AlertTriangle size={16} />
                   <div>

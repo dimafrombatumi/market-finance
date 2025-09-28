@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import styled from 'styled-components';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
@@ -31,23 +31,21 @@ const ContentArea = styled.main`
 
 export const Layout: React.FC = () => {
   return (
-    <Router>
-      <LayoutContainer>
-        <Sidebar />
-        <MainContent>
-          <Header />
-          <ContentArea>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/products" element={<ProductsPage />} />
-              <Route path="/sales" element={<SalesPage />} />
-              <Route path="/expenses" element={<ExpensesPage />} />
-              <Route path="/reports" element={<ReportsPage />} />
-            </Routes>
-          </ContentArea>
-        </MainContent>
-      </LayoutContainer>
-    </Router>
+    <LayoutContainer>
+      <Sidebar />
+      <MainContent>
+        <Header />
+        <ContentArea>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/products" element={<ProductsPage />} />
+            <Route path="/sales" element={<SalesPage />} />
+            <Route path="/expenses" element={<ExpensesPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+          </Routes>
+        </ContentArea>
+      </MainContent>
+    </LayoutContainer>
   );
 };

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { Calendar, TrendingUp, DollarSign, Package } from 'lucide-react';
-import { useData } from '../contexts/DataContext';
+import { useSalesStore, useTransactionStore } from '../stores';
 
 const ReportsContainer = styled.div`
   display: flex;
@@ -115,7 +115,8 @@ const ChartContainer = styled.div`
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 
 export const ReportsPage: React.FC = () => {
-  const { state } = useData();
+  const { sales } = useSalesStore();
+  const { transactions } = useTransactionStore();
   const [startDate, setStartDate] = useState(() => {
     const date = new Date();
     date.setMonth(date.getMonth() - 1);
@@ -135,18 +136,18 @@ export const ReportsPage: React.FC = () => {
     const end = new Date(endDate);
     end.setHours(23, 59, 59, 999);
 
-    const filteredTransactions = state.transactions.filter(transaction => {
+    const filteredTransactions = transactions.filter(transaction => {
       const transactionDate = new Date(transaction.date);
       return transactionDate >= start && transactionDate <= end;
     });
 
-    const filteredSales = state.sales.filter(sale => {
+    const filteredSales = sales.filter(sale => {
       const saleDate = new Date(sale.saleDate);
       return saleDate >= start && saleDate <= end;
     });
 
     return { transactions: filteredTransactions, sales: filteredSales };
-  }, [state.transactions, state.sales, startDate, endDate]);
+  }, [transactions, sales, startDate, endDate]);
 
   const summaryData = useMemo(() => {
     const revenue = filteredData.transactions
@@ -208,8 +209,8 @@ export const ReportsPage: React.FC = () => {
   const topProducts = useMemo(() => {
     const productSales: Record<string, { quantity: number; revenue: number; name: string }> = {};
 
-    filteredData.sales.forEach(sale => {
-      sale.items.forEach(item => {
+    filteredData.sales.forEach((sale: any) => {
+      sale.items.forEach((item: any) => {
         if (!productSales[item.productId]) {
           productSales[item.productId] = {
             quantity: 0,
@@ -335,7 +336,7 @@ export const ReportsPage: React.FC = () => {
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
-                      label={({ category, value }) => `${category}: ${formatCurrency(value)}`}
+                      label={(props) => `${props.category}: ${formatCurrency(props.value as number)}`}
                     >
                       {categoryBreakdown.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

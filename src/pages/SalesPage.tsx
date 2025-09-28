@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Plus, ShoppingCart, Calendar, CreditCard, User } from 'lucide-react';
-import { useData } from '../contexts/DataContext';
-import { SaleForm } from '../components/sales/SaleForm';
+import { Plus, ShoppingCart, Calendar, CreditCard, User, Edit, Trash2 } from 'lucide-react';
+import { useSalesStore } from '../stores';
+import { SaleFormModal } from '../components/sales/SaleForm';
+import { ConfirmDialog } from '../components/common/ConfirmDialog';
+import { LoadingSpinner } from '../components/common/LoadingSpinner';
 
 const SalesContainer = styled.div`
   display: flex;
@@ -68,6 +70,37 @@ const SaleHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+`;
+
+const SaleActions = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+const ActionButton = styled.button<{ $variant?: 'edit' | 'delete' }>`
+  padding: 6px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: ${props => {
+    switch (props.$variant) {
+      case 'edit': return 'rgba(59, 130, 246, 0.1)';
+      case 'delete': return 'rgba(239, 68, 68, 0.1)';
+      default: return 'rgba(0, 0, 0, 0.1)';
+    }
+  }};
+  color: ${props => {
+    switch (props.$variant) {
+      case 'edit': return '#3b82f6';
+      case 'delete': return '#ef4444';
+      default: return '#6b7280';
+    }
+  }};
+  
+  &:hover {
+    transform: scale(1.1);
+  }
 `;
 
 const SaleInfo = styled.div`
@@ -162,28 +195,6 @@ const EmptyState = styled.div`
   }
 `;
 
-const Modal = styled.div<{ isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: ${props => props.isOpen ? 'flex' : 'none'};
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-`;
-
-const ModalContent = styled.div`
-  background: white;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 800px;
-  max-height: 90vh;
-  overflow-y: auto;
-  margin: 20px;
-`;
 
 const PaymentMethodBadge = styled.span<{ method: string }>`
   padding: 4px 8px;
@@ -211,8 +222,14 @@ const PaymentMethodBadge = styled.span<{ method: string }>`
 `;
 
 export const SalesPage: React.FC = () => {
-  const { state } = useData();
   const [isSaleFormOpen, setIsSaleFormOpen] = useState(false);
+  const [editingSale, setEditingSale] = useState<any>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; sale: any }>({
+    isOpen: false,
+    sale: null
+  });
+
+  const { sales, deleteSale, loading } = useSalesStore();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -231,15 +248,48 @@ export const SalesPage: React.FC = () => {
     }).format(date);
   };
 
-  const sortedSales = [...state.sales].sort(
+  // Handlers
+  const handleAddSale = () => {
+    setEditingSale(null);
+    setIsSaleFormOpen(true);
+  };
+
+  const handleEditSale = (sale: any) => {
+    setEditingSale(sale);
+    setIsSaleFormOpen(true);
+  };
+
+  const handleDeleteSale = (sale: any) => {
+    setDeleteConfirm({ isOpen: true, sale });
+  };
+
+  const confirmDelete = async () => {
+    if (deleteConfirm.sale) {
+      await deleteSale(deleteConfirm.sale.id);
+      setDeleteConfirm({ isOpen: false, sale: null });
+    }
+  };
+
+  const closeSaleForm = () => {
+    setIsSaleFormOpen(false);
+    setEditingSale(null);
+  };
+
+  // Simple sorting
+  const sortedSales = [...sales].sort(
     (a, b) => new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime()
   );
+
+  // Show loading spinner while data is being fetched
+  if (loading && sales.length === 0) {
+    return <LoadingSpinner text="Loading sales..." />;
+  }
 
   return (
     <SalesContainer>
       <Header>
-        <HeaderTitle>Sales ({state.sales.length})</HeaderTitle>
-        <AddSaleButton onClick={() => setIsSaleFormOpen(true)}>
+        <HeaderTitle>Sales ({sales.length})</HeaderTitle>
+        <AddSaleButton onClick={handleAddSale}>
           <Plus size={18} />
           New Sale
         </AddSaleButton>
@@ -272,6 +322,22 @@ export const SalesPage: React.FC = () => {
                     )}
                   </SaleDetails>
                 </SaleInfo>
+                <SaleActions>
+                  <ActionButton 
+                    $variant="edit" 
+                    onClick={() => handleEditSale(sale)}
+                    title="Edit Sale"
+                  >
+                    <Edit size={16} />
+                  </ActionButton>
+                  <ActionButton 
+                    $variant="delete" 
+                    onClick={() => handleDeleteSale(sale)}
+                    title="Delete Sale"
+                  >
+                    <Trash2 size={16} />
+                  </ActionButton>
+                </SaleActions>
               </SaleHeader>
               
               <SaleItems>
@@ -297,11 +363,26 @@ export const SalesPage: React.FC = () => {
         )}
       </SalesGrid>
 
-      <Modal isOpen={isSaleFormOpen}>
-        <ModalContent>
-          <SaleForm onClose={() => setIsSaleFormOpen(false)} />
-        </ModalContent>
-      </Modal>
+      {/* Sale Form Modal */}
+      <SaleFormModal
+        isOpen={isSaleFormOpen}
+        onClose={closeSaleForm}
+        sale={editingSale}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, sale: null })}
+        onConfirm={confirmDelete}
+        title="Delete Sale"
+        message={`Are you sure you want to delete this sale? This action cannot be undone.`}
+        type="danger"
+        confirmText="Delete"
+        cancelText="Cancel"
+        loading={loading}
+      />
+
     </SalesContainer>
   );
 };
