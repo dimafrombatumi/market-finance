@@ -12,9 +12,9 @@ const ButtonBase = styled.button<{
   gap: 8px;
   padding: ${props => {
     switch (props.$size) {
-      case 'sm': return '8px 16px';
+      case 'sm': return '8px 12px';
       case 'lg': return '16px 24px';
-      default: return '12px 20px';
+      default: return '10px 16px';
     }
   }};
   border: none;

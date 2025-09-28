@@ -39,9 +39,10 @@ const ModalContainer = styled.div`
   max-width: 90vw;
   max-height: 90vh;
   width: 100%;
-  max-width: 600px;
   animation: ${slideIn} 0.2s ease-out;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 `;
 
 const ModalHeader = styled.div`
@@ -76,8 +77,9 @@ const CloseButton = styled.button`
 
 const ModalContent = styled.div`
   padding: 0 24px 24px;
-  max-height: 70vh;
+  flex: 1;
   overflow-y: auto;
+  min-height: 0;
 `;
 
 const ModalFooter = styled.div`
@@ -86,6 +88,16 @@ const ModalFooter = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  flex-shrink: 0;
+  
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 8px;
+    
+    button {
+      width: 100%;
+    }
+  }
 `;
 
 interface ModalProps {
@@ -127,11 +139,11 @@ export const Modal: React.FC<ModalProps> = ({
 
   const getModalWidth = () => {
     switch (size) {
-      case 'sm': return '400px';
-      case 'md': return '600px';
-      case 'lg': return '800px';
-      case 'xl': return '1000px';
-      default: return '600px';
+      case 'sm': return 'min(400px, 90vw)';
+      case 'md': return 'min(600px, 90vw)';
+      case 'lg': return 'min(800px, 90vw)';
+      case 'xl': return 'min(1000px, 95vw)';
+      default: return 'min(600px, 90vw)';
     }
   };
 

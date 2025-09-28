@@ -6,16 +6,48 @@ import {
   DollarSign, 
   ShoppingCart,
   AlertTriangle,
-  Activity
+  Activity,
+  Download
 } from 'lucide-react';
 import { useDashboardStore } from '../stores';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { useLanguage } from '../contexts/LanguageContext';
+import { ExcelExporter, ReportDataFormatter } from '../lib/excelUtils';
 
 const DashboardContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 24px;
+`;
+
+const HeaderSection = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+`;
+
+const ExportButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background: #2563eb;
+  }
+  
+  &:active {
+    background: #1d4ed8;
+  }
 `;
 
 const StatsGrid = styled.div`
@@ -237,8 +269,39 @@ export const Dashboard: React.FC = () => {
     }).format(date);
   };
 
+  const handleExportToExcel = () => {
+    const dashboardData = {
+      totalRevenue,
+      totalExpenses,
+      netProfit,
+      totalSales,
+      recentTransactions,
+      lowStockItems,
+    };
+
+    const sheets = ReportDataFormatter.formatDashboardReport(dashboardData);
+    const exporter = new ExcelExporter();
+    
+    sheets.forEach(sheet => {
+      exporter.addSheet(sheet);
+    });
+    
+    const filename = `dashboard_report_${new Date().toISOString().split('T')[0]}.xlsx`;
+    exporter.downloadFile(filename);
+  };
+
   return (
     <DashboardContainer>
+      <HeaderSection>
+        <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '600', color: '#1e293b' }}>
+          {t('dashboard.title')}
+        </h1>
+        <ExportButton onClick={handleExportToExcel}>
+          <Download size={16} />
+          {t('dashboard.exportToExcel')}
+        </ExportButton>
+      </HeaderSection>
+      
       <StatsGrid>
         <StatCard $variant="success">
           <StatHeader>

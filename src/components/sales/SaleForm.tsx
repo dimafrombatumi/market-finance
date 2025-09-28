@@ -470,8 +470,17 @@ export const SaleFormModal: React.FC<SaleFormModalProps> = ({
       title={sale ? t('sales.editSale') : t('sales.addSale')}
       size="xl"
       footer={
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <Button variant="outline" onClick={onClose}>
+        <div style={{ 
+          display: 'flex', 
+          gap: '12px',
+          flexWrap: 'wrap',
+          justifyContent: 'flex-end'
+        }}>
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            size="sm"
+          >
             {t('common.cancel')}
           </Button>
           <Button 
@@ -479,6 +488,7 @@ export const SaleFormModal: React.FC<SaleFormModalProps> = ({
             form="sale-form"
             loading={loading}
             disabled={loading}
+            size="sm"
           >
             {sale ? t('common.save') : t('common.add')}
           </Button>

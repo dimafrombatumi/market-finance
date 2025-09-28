@@ -263,8 +263,17 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
       title={transaction ? t('transactions.editTransaction') : t('transactions.addTransaction')}
       size="md"
       footer={
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <Button variant="outline" onClick={onClose}>
+        <div style={{ 
+          display: 'flex', 
+          gap: '12px',
+          flexWrap: 'wrap',
+          justifyContent: 'flex-end'
+        }}>
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            size="sm"
+          >
             {t('common.cancel')}
           </Button>
           <Button 
@@ -272,6 +281,7 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
             form="transaction-form"
             loading={loading}
             disabled={loading}
+            size="sm"
           >
             {transaction ? t('common.save') : t('common.add')}
           </Button>

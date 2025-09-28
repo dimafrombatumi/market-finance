@@ -165,7 +165,8 @@
     "lowStockItems": "Товары с низким остатком",
     "recentTransactions": "Последние транзакции",
     "onlyLeft": "Осталось только {{count}} (Мин: {{min}})",
-    "allProductsWellStocked": "Все товары хорошо укомплектованы"
+    "allProductsWellStocked": "Все товары хорошо укомплектованы",
+    "exportToExcel": "Экспорт в Excel"
   },
   "reports": {
     "title": "Отчеты",
@@ -174,7 +175,8 @@
     "expensesByCategory": "Расходы по категориям",
     "topProductsByRevenue": "Топ товары по выручке",
     "noExpenseData": "Нет данных о расходах за этот период",
-    "noSalesData": "Нет данных о продажах за этот период"
+    "noSalesData": "Нет данных о продажах за этот период",
+    "exportToExcel": "Экспорт в Excel"
   },
   "errors": {
     "required": "Это поле обязательно",

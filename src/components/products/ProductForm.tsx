@@ -279,8 +279,17 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       title={product ? t('products.editProduct') : t('products.addProduct')}
       size="lg"
       footer={
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <Button variant="outline" onClick={onClose}>
+        <div style={{ 
+          display: 'flex', 
+          gap: '12px',
+          flexWrap: 'wrap',
+          justifyContent: 'flex-end'
+        }}>
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            size="sm"
+          >
             {t('common.cancel')}
           </Button>
           <Button 
@@ -288,6 +297,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
             form="product-form"
             loading={loading}
             disabled={loading}
+            size="sm"
           >
             {product ? t('common.save') : t('common.add')}
           </Button>

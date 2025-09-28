@@ -99,8 +99,18 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       title=""
       size="sm"
       footer={
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <Button variant="outline" onClick={onClose} disabled={loading}>
+        <div style={{ 
+          display: 'flex', 
+          gap: '12px',
+          flexWrap: 'wrap',
+          justifyContent: 'flex-end'
+        }}>
+          <Button 
+            variant="outline" 
+            onClick={onClose} 
+            disabled={loading}
+            size="sm"
+          >
             {cancelText}
           </Button>
           <Button 
@@ -108,6 +118,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             onClick={handleConfirm}
             loading={loading}
             disabled={loading}
+            size="sm"
           >
             {confirmText}
           </Button>

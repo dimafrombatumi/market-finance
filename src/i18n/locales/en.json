@@ -165,7 +165,8 @@
     "lowStockItems": "Low Stock Items",
     "recentTransactions": "Recent Transactions",
     "onlyLeft": "Only {{count}} left (Min: {{min}})",
-    "allProductsWellStocked": "All products are well stocked"
+    "allProductsWellStocked": "All products are well stocked",
+    "exportToExcel": "Export to Excel"
   },
   "reports": {
     "title": "Reports",
@@ -174,7 +175,8 @@
     "expensesByCategory": "Expenses by Category",
     "topProductsByRevenue": "Top Products by Revenue",
     "noExpenseData": "No expense data for this period",
-    "noSalesData": "No sales data for this period"
+    "noSalesData": "No sales data for this period",
+    "exportToExcel": "Export to Excel"
   },
   "errors": {
     "required": "This field is required",

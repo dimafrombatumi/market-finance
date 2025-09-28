@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-import { Calendar, TrendingUp, DollarSign, Package } from 'lucide-react';
+import { Calendar, TrendingUp, DollarSign, Package, Download } from 'lucide-react';
 import { useSalesStore, useTransactionStore } from '../stores';
 import { useLanguage } from '../contexts/LanguageContext';
+import { ExcelExporter, ReportDataFormatter } from '../lib/excelUtils';
 
 const ReportsContainer = styled.div`
   display: flex;
@@ -19,6 +20,29 @@ const DateFilters = styled.div`
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+`;
+
+const ExportButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background: #2563eb;
+  }
+  
+  &:active {
+    background: #1d4ed8;
+  }
 `;
 
 const FilterGroup = styled.div`
@@ -234,6 +258,27 @@ export const ReportsPage: React.FC = () => {
       .slice(0, 5);
   }, [filteredData]);
 
+  const handleExportToExcel = () => {
+    const reportData = {
+      summary: summaryData,
+      monthlyTrends,
+      categoryBreakdown,
+      topProducts,
+      transactions: filteredData.transactions,
+      sales: filteredData.sales,
+    };
+
+    const sheets = ReportDataFormatter.formatFinancialReport(reportData);
+    const exporter = new ExcelExporter();
+    
+    sheets.forEach(sheet => {
+      exporter.addSheet(sheet);
+    });
+    
+    const filename = `financial_report_${startDate}_to_${endDate}.xlsx`;
+    exporter.downloadFile(filename);
+  };
+
   return (
     <ReportsContainer>
       <DateFilters>
@@ -254,6 +299,10 @@ export const ReportsPage: React.FC = () => {
             onChange={(e) => setEndDate(e.target.value)}
           />
         </FilterGroup>
+        <ExportButton onClick={handleExportToExcel}>
+          <Download size={16} />
+          {t('reports.exportToExcel')}
+        </ExportButton>
       </DateFilters>
 
       <SummaryGrid>
