@@ -5,6 +5,7 @@ import { Input, TextArea, Select } from '../common/Input';
 import { Button } from '../common/Button';
 import { Modal } from '../common/Modal';
 import { useTransactionStore } from '../../stores';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const FormContainer = styled.div`
   display: flex;
@@ -28,31 +29,31 @@ const FormRow = styled.div`
 //   gap: 20px;
 // `;
 
-const TypeOptions = [
-  { value: 'income', label: 'Income' },
-  { value: 'expense', label: 'Expense' },
+const getTypeOptions = (t: (key: string) => string) => [
+  { value: 'income', label: t('transactions.income') },
+  { value: 'expense', label: t('transactions.expense') },
 ];
 
-const CategoryOptions = {
+const getCategoryOptions = (t: (key: string) => string) => ({
   income: [
-    { value: 'Sales Revenue', label: 'Sales Revenue' },
-    { value: 'Other Income', label: 'Other Income' },
-    { value: 'Investment', label: 'Investment' },
-    { value: 'Grants', label: 'Grants' },
-    { value: 'Donations', label: 'Donations' },
+    { value: 'Sales Revenue', label: t('transactions.categories.salesRevenue') },
+    { value: 'Other Income', label: t('transactions.categories.otherIncome') },
+    { value: 'Investment', label: t('transactions.categories.investment') },
+    { value: 'Grants', label: t('transactions.categories.grants') },
+    { value: 'Donations', label: t('transactions.categories.donations') },
   ],
   expense: [
-    { value: 'Materials & Supplies', label: 'Materials & Supplies' },
-    { value: 'Rent & Utilities', label: 'Rent & Utilities' },
-    { value: 'Marketing & Advertising', label: 'Marketing & Advertising' },
-    { value: 'Professional Services', label: 'Professional Services' },
-    { value: 'Equipment & Tools', label: 'Equipment & Tools' },
-    { value: 'Transportation', label: 'Transportation' },
-    { value: 'Insurance', label: 'Insurance' },
-    { value: 'Taxes', label: 'Taxes' },
-    { value: 'Other', label: 'Other' },
+    { value: 'Materials & Supplies', label: t('transactions.categories.materialsSupplies') },
+    { value: 'Rent & Utilities', label: t('transactions.categories.rentUtilities') },
+    { value: 'Marketing & Advertising', label: t('transactions.categories.marketingAdvertising') },
+    { value: 'Professional Services', label: t('transactions.categories.professionalServices') },
+    { value: 'Equipment & Tools', label: t('transactions.categories.equipmentTools') },
+    { value: 'Transportation', label: t('transactions.categories.transportation') },
+    { value: 'Insurance', label: t('transactions.categories.insurance') },
+    { value: 'Taxes', label: t('transactions.categories.taxes') },
+    { value: 'Other', label: t('transactions.categories.other') },
   ],
-};
+});
 
 interface TransactionFormProps {
   transaction?: Transaction;
@@ -65,6 +66,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   onClose,
   onSuccess
 }) => {
+  const { t } = useLanguage();
   const { addTransaction, updateTransaction } = useTransactionStore();
   const [formData, setFormData] = useState<TransactionFormData>({
     type: 'expense',
@@ -93,15 +95,15 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!formData.description.trim()) {
-      newErrors.description = 'Description is required';
+      newErrors.description = t('errors.required');
     }
 
     if (formData.amount <= 0) {
-      newErrors.amount = 'Amount must be greater than 0';
+      newErrors.amount = t('errors.amountGreaterThanZero');
     }
 
     if (!formData.category) {
-      newErrors.category = 'Category is required';
+      newErrors.category = t('errors.required');
     }
 
     setErrors(newErrors);
@@ -146,7 +148,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
     setErrors(prev => ({ ...prev, category: '' }));
   };
 
-  const currentCategoryOptions = CategoryOptions[formData.type] || [];
+  const currentCategoryOptions = getCategoryOptions(t)[formData.type] || [];
 
   return (
     <form id="transaction-form" onSubmit={handleSubmit}>
@@ -163,7 +165,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
               Type *
             </label>
             <div style={{ display: 'flex', gap: '12px' }}>
-              {TypeOptions.map(option => (
+              {getTypeOptions(t).map(option => (
                 <label key={option.value} style={{ 
                   display: 'flex', 
                   alignItems: 'center', 
@@ -198,7 +200,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
 
         <FormRow>
           <Select
-            label="Category *"
+            label={`${t('common.category')} *`}
             value={formData.category}
             onChange={(e) => handleChange('category', e.target.value)}
             options={currentCategoryOptions}
@@ -207,7 +209,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
           />
           
           <Input
-            label="Date"
+            label={t('common.date')}
             type="datetime-local"
             value={formData.date.toISOString().slice(0, 16)}
             onChange={(e) => handleChange('date', new Date(e.target.value))}
@@ -216,20 +218,20 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
         </FormRow>
 
         <Input
-          label="Description *"
+          label={`${t('common.description')} *`}
           value={formData.description}
           onChange={(e) => handleChange('description', e.target.value)}
           error={errors.description}
           fullWidth
-          placeholder="Enter transaction description"
+          placeholder={t('transactions.enterDescription')}
         />
 
         <TextArea
-          label="Notes"
+          label={t('common.notes')}
           value={formData.notes}
           onChange={(e) => handleChange('notes', e.target.value)}
           fullWidth
-          placeholder="Additional notes (optional)"
+          placeholder={t('transactions.additionalNotes')}
         />
       </FormContainer>
     </form>
@@ -247,22 +249,23 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
   onClose,
   transaction
 }) => {
+  const { t } = useLanguage();
   const { loading } = useTransactionStore();
 
   const handleSuccess = () => {
-    console.log('Transaction saved successfully');
+    console.log(t('transactions.transactionSaved'));
   };
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={transaction ? 'Edit Transaction' : 'Add New Transaction'}
+      title={transaction ? t('transactions.editTransaction') : t('transactions.addTransaction')}
       size="md"
       footer={
         <div style={{ display: 'flex', gap: '12px' }}>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button 
             type="submit" 
@@ -270,7 +273,7 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
             loading={loading}
             disabled={loading}
           >
-            {transaction ? 'Update Transaction' : 'Add Transaction'}
+            {transaction ? t('common.save') : t('common.add')}
           </Button>
         </div>
       }

@@ -5,6 +5,7 @@ import { useTransactionStore } from '../stores';
 import { TransactionFormModal } from '../components/transactions/TransactionForm';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const ExpensesContainer = styled.div`
   display: flex;
@@ -159,6 +160,7 @@ const EmptyState = styled.div`
 
 
 export const ExpensesPage: React.FC = () => {
+  const { t } = useLanguage();
   const [isTransactionFormOpen, setIsTransactionFormOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<any>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; transaction: any }>({
@@ -223,16 +225,16 @@ export const ExpensesPage: React.FC = () => {
 
   // Show loading spinner while data is being fetched
   if (loading && filteredTransactions.length === 0) {
-    return <LoadingSpinner text="Loading transactions..." />;
+    return <LoadingSpinner text={t('common.loading')} />;
   }
 
   return (
     <ExpensesContainer>
       <Header>
-        <HeaderTitle>Expenses & Income ({filteredTransactions.length})</HeaderTitle>
+        <HeaderTitle>{t('transactions.title')} ({filteredTransactions.length})</HeaderTitle>
         <AddTransactionButton onClick={handleAddTransaction}>
           <Plus size={18} />
-          Add Transaction
+          {t('transactions.addTransaction')}
         </AddTransactionButton>
       </Header>
 
@@ -247,8 +249,8 @@ export const ExpensesPage: React.FC = () => {
               <TransactionInfo>
                 <div className="description">{transaction.description}</div>
                 <div className="details">
-                  <span>Category: {transaction.category}</span>
-                  <span>Date: {formatDate(transaction.date)}</span>
+                  <span>{t('common.category')}: {transaction.category}</span>
+                  <span>{t('common.date')}: {formatDate(transaction.date)}</span>
                 </div>
               </TransactionInfo>
               
@@ -280,8 +282,8 @@ export const ExpensesPage: React.FC = () => {
         ) : (
           <EmptyState>
             <Receipt size={64} />
-            <h3>No transactions yet</h3>
-            <p>Start by adding your first expense or income</p>
+            <h3>{t('transactions.noTransactions')}</h3>
+            <p>{t('transactions.startByAddingTransaction')}</p>
           </EmptyState>
         )}
       </TransactionsList>
@@ -298,11 +300,11 @@ export const ExpensesPage: React.FC = () => {
         isOpen={deleteConfirm.isOpen}
         onClose={() => setDeleteConfirm({ isOpen: false, transaction: null })}
         onConfirm={confirmDelete}
-        title="Delete Transaction"
-        message={`Are you sure you want to delete this transaction? This action cannot be undone.`}
+        title={t('transactions.deleteTransaction')}
+        message={t('transactions.deleteConfirm')}
         type="danger"
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
         loading={loading}
       />
 

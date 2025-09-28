@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Bell, Search, User, LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
+import { LanguageSwitcher } from '../common/LanguageSwitcher';
 
 const HeaderContainer = styled.header`
   background: white;
@@ -152,19 +154,19 @@ const UserInfo = styled.div`
   }
 `;
 
-const getPageInfo = (pathname: string) => {
+const getPageInfo = (pathname: string, t: (key: string) => string) => {
   switch (pathname) {
     case '/':
     case '/dashboard':
-      return { title: 'Dashboard', description: 'Overview of your handmade store' };
+      return { title: t('navigation.dashboard'), description: t('dashboard.overview') };
     case '/products':
-      return { title: 'Products', description: 'Manage your product inventory' };
+      return { title: t('navigation.products'), description: t('products.title') };
     case '/sales':
-      return { title: 'Sales', description: 'Record and track sales' };
+      return { title: t('navigation.sales'), description: t('sales.title') };
     case '/expenses':
-      return { title: 'Expenses', description: 'Track expenses and income' };
+      return { title: t('navigation.expenses'), description: t('transactions.title') };
     case '/reports':
-      return { title: 'Reports', description: 'Financial reports and analytics' };
+      return { title: t('navigation.reports'), description: t('reports.financialReports') };
     default:
       return { title: 'Handmade Store', description: 'Management System' };
   }
@@ -174,7 +176,8 @@ export const Header: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const pageInfo = getPageInfo(location.pathname);
+  const { t } = useLanguage();
+  const pageInfo = getPageInfo(location.pathname, t);
   const lowStockCount = 0; // Mock data
 
   const handleLogout = async () => {
@@ -198,9 +201,11 @@ export const Header: React.FC = () => {
           <SearchIcon />
           <SearchInput 
             type="text" 
-            placeholder="Search products, sales..." 
+            placeholder={t('common.search')} 
           />
         </SearchContainer>
+        
+        <LanguageSwitcher />
         
         <IconButton>
           <Bell size={20} />
@@ -220,13 +225,13 @@ export const Header: React.FC = () => {
             </UserProfile>
             <LogoutButton onClick={handleLogout}>
               <LogOut size={16} />
-              Logout
+              {t('auth.logout')}
             </LogoutButton>
           </UserActions>
         ) : (
           <LogoutButton onClick={handleLogin}>
             <User size={16} />
-            Login
+            {t('auth.login')}
           </LogoutButton>
         )}
       </HeaderActions>

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { Calendar, TrendingUp, DollarSign, Package } from 'lucide-react';
 import { useSalesStore, useTransactionStore } from '../stores';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const ReportsContainer = styled.div`
   display: flex;
@@ -115,6 +116,7 @@ const ChartContainer = styled.div`
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 
 export const ReportsPage: React.FC = () => {
+  const { t } = useLanguage();
   const { sales } = useSalesStore();
   const { transactions } = useTransactionStore();
   const [startDate, setStartDate] = useState(() => {
@@ -237,7 +239,7 @@ export const ReportsPage: React.FC = () => {
       <DateFilters>
         <Calendar size={20} />
         <FilterGroup>
-          <Label>Start Date</Label>
+          <Label>{t('common.date')} {t('common.from')}</Label>
           <DateInput
             type="date"
             value={startDate}
@@ -245,7 +247,7 @@ export const ReportsPage: React.FC = () => {
           />
         </FilterGroup>
         <FilterGroup>
-          <Label>End Date</Label>
+          <Label>{t('common.date')} {t('common.to')}</Label>
           <DateInput
             type="date"
             value={endDate}
@@ -257,21 +259,21 @@ export const ReportsPage: React.FC = () => {
       <SummaryGrid>
         <SummaryCard>
           <div className="value">{formatCurrency(summaryData.revenue)}</div>
-          <div className="label">Total Revenue</div>
+          <div className="label">{t('dashboard.totalRevenue')}</div>
         </SummaryCard>
         <SummaryCard>
           <div className="value">{formatCurrency(summaryData.expenses)}</div>
-          <div className="label">Total Expenses</div>
+          <div className="label">{t('dashboard.totalExpenses')}</div>
         </SummaryCard>
         <SummaryCard>
           <div className="value" style={{ color: summaryData.profit >= 0 ? '#10b981' : '#ef4444' }}>
             {formatCurrency(summaryData.profit)}
           </div>
-          <div className="label">Net Profit</div>
+          <div className="label">{t('dashboard.netProfit')}</div>
         </SummaryCard>
         <SummaryCard>
           <div className="value">{summaryData.salesCount}</div>
-          <div className="label">Total Sales</div>
+          <div className="label">{t('dashboard.totalSales')}</div>
         </SummaryCard>
       </SummaryGrid>
 
@@ -279,7 +281,7 @@ export const ReportsPage: React.FC = () => {
         <ReportCard fullWidth>
           <CardHeader>
             <TrendingUp size={20} />
-            <h3>Revenue vs Expenses Over Time</h3>
+            <h3>{t('reports.revenueVsExpenses')}</h3>
           </CardHeader>
           <CardContent>
             <ChartContainer>
@@ -297,21 +299,21 @@ export const ReportsPage: React.FC = () => {
                     dataKey="revenue" 
                     stroke="#10b981" 
                     strokeWidth={2}
-                    name="Revenue"
+                    name={t('dashboard.totalRevenue')}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="expenses" 
                     stroke="#ef4444" 
                     strokeWidth={2}
-                    name="Expenses"
+                    name={t('dashboard.totalExpenses')}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="profit" 
                     stroke="#3b82f6" 
                     strokeWidth={2}
-                    name="Profit"
+                    name={t('dashboard.netProfit')}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -322,7 +324,7 @@ export const ReportsPage: React.FC = () => {
         <ReportCard>
           <CardHeader>
             <DollarSign size={20} />
-            <h3>Expenses by Category</h3>
+            <h3>{t('reports.expensesByCategory')}</h3>
           </CardHeader>
           <CardContent>
             {categoryBreakdown.length > 0 ? (
@@ -348,7 +350,7 @@ export const ReportsPage: React.FC = () => {
               </ChartContainer>
             ) : (
               <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                No expense data for this period
+                {t('reports.noExpenseData')}
               </div>
             )}
           </CardContent>
@@ -357,7 +359,7 @@ export const ReportsPage: React.FC = () => {
         <ReportCard>
           <CardHeader>
             <Package size={20} />
-            <h3>Top Products by Revenue</h3>
+            <h3>{t('reports.topProductsByRevenue')}</h3>
           </CardHeader>
           <CardContent>
             {topProducts.length > 0 ? (
@@ -374,7 +376,7 @@ export const ReportsPage: React.FC = () => {
               </ChartContainer>
             ) : (
               <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                No sales data for this period
+                {t('reports.noSalesData')}
               </div>
             )}
           </CardContent>

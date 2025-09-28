@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Loader } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 
@@ -146,6 +147,7 @@ interface LoginFormProps {
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -168,7 +170,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         if (error) {
           setError(error.message);
         } else {
-          setSuccess('Successfully signed in!');
+          setSuccess(t('auth.successfullySignedIn'));
           onSuccess?.();
           navigate('/');
         }
@@ -177,11 +179,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         if (error) {
           setError(error.message);
         } else {
-          setSuccess('Check your email for verification link!');
+          setSuccess(t('auth.checkEmailForVerification'));
         }
       }
     } catch (err) {
-      setError('An unexpected error occurred');
+      setError(t('errors.required'));
     } finally {
       setLoading(false);
     }
@@ -189,7 +191,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
 
   const handleForgotPassword = async () => {
     if (!email) {
-      setError('Please enter your email address first');
+      setError(t('errors.required'));
       return;
     }
 
@@ -202,10 +204,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
       if (error) {
         setError(error.message);
       } else {
-        setSuccess('Password reset email sent! Check your inbox.');
+        setSuccess(t('auth.passwordResetEmailSent'));
       }
     } catch (err) {
-      setError('An unexpected error occurred');
+      setError(t('errors.required'));
     } finally {
       setLoading(false);
     }
@@ -221,12 +223,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
     <FormContainer>
       <Form onSubmit={handleSubmit}>
         <FormHeader>
-          <h1>{isLogin ? 'Welcome Back' : 'Create Account'}</h1>
-          <p>{isLogin ? 'Sign in to your account' : 'Sign up for a new account'}</p>
+          <h1>{isLogin ? t('auth.welcomeBack') : t('auth.createAccount')}</h1>
+          <p>{isLogin ? t('auth.signInToAccount') : t('auth.signUpForAccount')}</p>
         </FormHeader>
 
         <FormGroup>
-          <Label htmlFor="email">Email Address</Label>
+          <Label htmlFor="email">{t('auth.email')}</Label>
           <InputContainer>
             <InputIcon>
               <Mail size={18} />
@@ -236,7 +238,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
+              placeholder={t('auth.email')}
               required
               style={{ paddingLeft: '40px' }}
             />
@@ -244,7 +246,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         </FormGroup>
 
         <FormGroup>
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{t('auth.password')}</Label>
           <InputContainer>
             <InputIcon>
               <Lock size={18} />
@@ -254,7 +256,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder={t('auth.password')}
               required
               style={{ paddingLeft: '40px', paddingRight: '40px' }}
             />
@@ -278,17 +280,17 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
           {loading ? (
             <>
               <Loader size={18} className="animate-spin" />
-              {isLogin ? 'Signing In...' : 'Creating Account...'}
+              {isLogin ? t('auth.signingIn') : t('auth.creatingAccount')}
             </>
           ) : (
-            isLogin ? 'Sign In' : 'Create Account'
+            isLogin ? t('auth.login') : t('auth.register')
           )}
         </Button>
 
         {isLogin && (
           <FormFooter>
             <LinkButton type="button" onClick={handleForgotPassword}>
-              Forgot your password?
+              {t('auth.forgotPassword')}
             </LinkButton>
           </FormFooter>
         )}
@@ -300,8 +302,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         <FormFooter>
           <LinkButton type="button" onClick={toggleMode}>
             {isLogin 
-              ? "Don't have an account? Sign up" 
-              : "Already have an account? Sign in"
+              ? t('auth.dontHaveAccount')
+              : t('auth.alreadyHaveAccount')
             }
           </LinkButton>
         </FormFooter>

@@ -9,6 +9,7 @@ import {
   BarChart3,
   Store
 } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const SidebarContainer = styled.aside`
   width: 250px;
@@ -77,16 +78,18 @@ const Footer = styled.div`
   text-align: center;
 `;
 
-const navigationItems = [
-  { path: '/dashboard', label: 'Dashboard', icon: Home },
-  { path: '/products', label: 'Products', icon: Package },
-  { path: '/sales', label: 'Sales', icon: ShoppingCart },
-  { path: '/expenses', label: 'Expenses', icon: Receipt },
-  { path: '/reports', label: 'Reports', icon: BarChart3 },
+const getNavigationItems = (t: (key: string) => string) => [
+  { path: '/dashboard', label: t('navigation.dashboard'), icon: Home },
+  { path: '/products', label: t('navigation.products'), icon: Package },
+  { path: '/sales', label: t('navigation.sales'), icon: ShoppingCart },
+  { path: '/expenses', label: t('navigation.expenses'), icon: Receipt },
+  { path: '/reports', label: t('navigation.reports'), icon: BarChart3 },
 ];
 
 export const Sidebar: React.FC = () => {
   const location = useLocation();
+  const { t } = useLanguage();
+  const navigationItems = getNavigationItems(t);
 
   return (
     <SidebarContainer>

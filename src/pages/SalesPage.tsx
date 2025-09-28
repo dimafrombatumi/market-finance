@@ -5,6 +5,7 @@ import { useSalesStore } from '../stores';
 import { SaleFormModal } from '../components/sales/SaleForm';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const SalesContainer = styled.div`
   display: flex;
@@ -222,6 +223,7 @@ const PaymentMethodBadge = styled.span<{ method: string }>`
 `;
 
 export const SalesPage: React.FC = () => {
+  const { t } = useLanguage();
   const [isSaleFormOpen, setIsSaleFormOpen] = useState(false);
   const [editingSale, setEditingSale] = useState<any>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; sale: any }>({
@@ -282,16 +284,16 @@ export const SalesPage: React.FC = () => {
 
   // Show loading spinner while data is being fetched
   if (loading && sales.length === 0) {
-    return <LoadingSpinner text="Loading sales..." />;
+    return <LoadingSpinner text={t('common.loading')} />;
   }
 
   return (
     <SalesContainer>
       <Header>
-        <HeaderTitle>Sales ({sales.length})</HeaderTitle>
+        <HeaderTitle>{t('sales.title')} ({sales.length})</HeaderTitle>
         <AddSaleButton onClick={handleAddSale}>
           <Plus size={18} />
-          New Sale
+          {t('sales.addSale')}
         </AddSaleButton>
       </Header>
 
@@ -326,14 +328,14 @@ export const SalesPage: React.FC = () => {
                   <ActionButton 
                     $variant="edit" 
                     onClick={() => handleEditSale(sale)}
-                    title="Edit Sale"
+                    title={t('sales.editSale')}
                   >
                     <Edit size={16} />
                   </ActionButton>
                   <ActionButton 
                     $variant="delete" 
                     onClick={() => handleDeleteSale(sale)}
-                    title="Delete Sale"
+                    title={t('sales.deleteSale')}
                   >
                     <Trash2 size={16} />
                   </ActionButton>
@@ -341,12 +343,12 @@ export const SalesPage: React.FC = () => {
               </SaleHeader>
               
               <SaleItems>
-                <ItemsHeader>Items ({sale.items.length})</ItemsHeader>
+                <ItemsHeader>{t('sales.items')} ({sale.items.length})</ItemsHeader>
                 {sale.items.map((item, index) => (
                   <SaleItem key={index}>
                     <ItemInfo>
                       <div className="name">{item.productName}</div>
-                      <div className="quantity">Qty: {item.quantity} × {formatCurrency(item.unitPrice)}</div>
+                      <div className="quantity">{t('sales.quantity')}: {item.quantity} × {formatCurrency(item.unitPrice)}</div>
                     </ItemInfo>
                     <ItemPrice>{formatCurrency(item.totalPrice)}</ItemPrice>
                   </SaleItem>
@@ -357,8 +359,8 @@ export const SalesPage: React.FC = () => {
         ) : (
           <EmptyState>
             <ShoppingCart size={64} />
-            <h3>No sales yet</h3>
-            <p>Start by recording your first sale</p>
+            <h3>{t('sales.noSales')}</h3>
+            <p>{t('sales.startByAddingSale')}</p>
           </EmptyState>
         )}
       </SalesGrid>
@@ -375,11 +377,11 @@ export const SalesPage: React.FC = () => {
         isOpen={deleteConfirm.isOpen}
         onClose={() => setDeleteConfirm({ isOpen: false, sale: null })}
         onConfirm={confirmDelete}
-        title="Delete Sale"
-        message={`Are you sure you want to delete this sale? This action cannot be undone.`}
+        title={t('sales.deleteSale')}
+        message={t('sales.deleteConfirm')}
         type="danger"
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
         loading={loading}
       />
 

@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useDashboardStore } from '../stores';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -195,6 +196,7 @@ const EmptyState = styled.div`
 `;
 
 export const Dashboard: React.FC = () => {
+  const { t } = useLanguage();
   // Use Zustand store
   const {
     getTotalRevenue,
@@ -216,7 +218,7 @@ export const Dashboard: React.FC = () => {
 
   // Show loading spinner while data is being fetched
   if (loading) {
-    return <LoadingSpinner text="Loading dashboard data..." />;
+    return <LoadingSpinner text={t('common.loading')} />;
   }
 
   const formatCurrency = (amount: number) => {
@@ -240,7 +242,7 @@ export const Dashboard: React.FC = () => {
       <StatsGrid>
         <StatCard $variant="success">
           <StatHeader>
-            <StatTitle>Total Revenue</StatTitle>
+            <StatTitle>{t('dashboard.totalRevenue')}</StatTitle>
             <StatIcon $variant="success">
               <TrendingUp size={20} />
             </StatIcon>
@@ -254,7 +256,7 @@ export const Dashboard: React.FC = () => {
 
         <StatCard $variant="danger">
           <StatHeader>
-            <StatTitle>Total Expenses</StatTitle>
+            <StatTitle>{t('dashboard.totalExpenses')}</StatTitle>
             <StatIcon $variant="danger">
               <TrendingDown size={20} />
             </StatIcon>
@@ -268,7 +270,7 @@ export const Dashboard: React.FC = () => {
 
         <StatCard $variant="info">
           <StatHeader>
-            <StatTitle>Net Profit</StatTitle>
+            <StatTitle>{t('dashboard.netProfit')}</StatTitle>
             <StatIcon $variant="info">
               <DollarSign size={20} />
             </StatIcon>
@@ -282,7 +284,7 @@ export const Dashboard: React.FC = () => {
 
         <StatCard $variant="warning">
           <StatHeader>
-            <StatTitle>Total Sales</StatTitle>
+            <StatTitle>{t('dashboard.totalSales')}</StatTitle>
             <StatIcon $variant="warning">
               <ShoppingCart size={20} />
             </StatIcon>
@@ -298,7 +300,7 @@ export const Dashboard: React.FC = () => {
       <ContentGrid>
         <Card>
           <CardHeader>
-            <h3>Recent Transactions</h3>
+            <h3>{t('dashboard.recentTransactions')}</h3>
           </CardHeader>
           <CardContent>
             {recentTransactions.length > 0 ? (
@@ -317,7 +319,7 @@ export const Dashboard: React.FC = () => {
             ) : (
               <EmptyState>
                 <Activity size={48} />
-                <p>No transactions yet</p>
+                <p>{t('transactions.noTransactions')}</p>
               </EmptyState>
             )}
           </CardContent>
@@ -325,7 +327,7 @@ export const Dashboard: React.FC = () => {
 
         <Card>
           <CardHeader>
-            <h3>Low Stock Alerts</h3>
+            <h3>{t('dashboard.lowStockItems')}</h3>
           </CardHeader>
           <CardContent>
             {lowStockItems.length > 0 ? (
@@ -335,7 +337,7 @@ export const Dashboard: React.FC = () => {
                   <div>
                     <div style={{ fontWeight: 500 }}>{product.name}</div>
                     <div style={{ fontSize: '12px', color: '#92400e' }}>
-                      Only {product.stockQuantity} left (Min: {product.minStockLevel})
+                      {t('dashboard.onlyLeft', { count: product.stockQuantity, min: product.minStockLevel })}
                     </div>
                   </div>
                 </AlertItem>
@@ -343,7 +345,7 @@ export const Dashboard: React.FC = () => {
             ) : (
               <EmptyState>
                 <AlertTriangle size={48} />
-                <p>All products are well stocked</p>
+                <p>{t('dashboard.allProductsWellStocked')}</p>
               </EmptyState>
             )}
           </CardContent>

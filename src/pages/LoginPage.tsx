@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { LoginForm } from '../components/auth/LoginForm';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const LoginPageContainer = styled.div`
   min-height: 100vh;
@@ -51,13 +52,15 @@ const BrandSection = styled.div`
 `;
 
 export const LoginPage: React.FC = () => {
+  const { t } = useLanguage();
+  
   return (
     <LoginPageContainer>
       <BackgroundPattern />
       <Content>
         <BrandSection>
           <h1>Handmade Store</h1>
-          <p>Management System</p>
+          <p>{t('auth.welcomeBack')}</p>
         </BrandSection>
         <LoginForm />
       </Content>

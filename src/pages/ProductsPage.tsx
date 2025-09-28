@@ -5,6 +5,7 @@ import { useProductStore } from '../stores';
 import { ProductFormModal } from '../components/products/ProductForm';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const ProductsContainer = styled.div`
   display: flex;
@@ -209,6 +210,7 @@ const EmptyState = styled.div`
 
 
 export const ProductsPage: React.FC = () => {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [isProductFormOpen, setIsProductFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
@@ -278,7 +280,7 @@ export const ProductsPage: React.FC = () => {
         
         <AddButton onClick={handleAddProduct}>
           <Plus size={18} />
-          Add Product
+          {t('products.addProduct')}
         </AddButton>
       </Header>
 
@@ -316,26 +318,26 @@ export const ProductsPage: React.FC = () => {
                   
                   <ProductDetails>
                     <DetailItem>
-                      <div className="label">Price</div>
+                      <div className="label">{t('common.price')}</div>
                       <div className="value">{formatCurrency(product.price)}</div>
                     </DetailItem>
                     <DetailItem>
-                      <div className="label">Cost</div>
+                      <div className="label">{t('common.cost')}</div>
                       <div className="value">{formatCurrency(product.cost)}</div>
                     </DetailItem>
                     <DetailItem>
-                      <div className="label">Category</div>
+                      <div className="label">{t('common.category')}</div>
                       <div className="value">{product.category}</div>
                     </DetailItem>
                     <DetailItem>
-                      <div className="label">Stock</div>
+                      <div className="label">{t('products.stockQuantity')}</div>
                       <div className="value">{product.stockQuantity} units</div>
                     </DetailItem>
                   </ProductDetails>
                   
                   <StockStatus isLow={isLowStock}>
                     {isLowStock ? <AlertTriangle size={14} /> : <Package size={14} />}
-                    {isLowStock ? 'Low Stock' : 'In Stock'}
+                    {isLowStock ? t('products.lowStock') : t('products.inStock')}
                   </StockStatus>
                 </ProductContent>
               </ProductCard>
@@ -344,11 +346,11 @@ export const ProductsPage: React.FC = () => {
         ) : (
           <EmptyState>
             <Package size={64} />
-            <h3>{searchQuery ? 'No products found' : 'No products yet'}</h3>
+            <h3>{searchQuery ? t('products.noProductsFound') : t('products.noProducts')}</h3>
             <p>
               {searchQuery 
-                ? 'Try adjusting your search terms' 
-                : 'Start by adding your first product'
+                ? t('products.tryAdjustingSearch')
+                : t('products.startByAdding')
               }
             </p>
           </EmptyState>
@@ -367,11 +369,11 @@ export const ProductsPage: React.FC = () => {
         isOpen={deleteConfirm.isOpen}
         onClose={() => setDeleteConfirm({ isOpen: false, product: null })}
         onConfirm={confirmDelete}
-        title="Delete Product"
-        message={`Are you sure you want to delete "${deleteConfirm.product?.name}"? This action cannot be undone.`}
+        title={t('products.deleteProduct')}
+        message={t('products.deleteConfirm', { name: deleteConfirm.product?.name })}
         type="danger"
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
         loading={loading}
       />
 

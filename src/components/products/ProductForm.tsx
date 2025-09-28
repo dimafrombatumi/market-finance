@@ -5,6 +5,7 @@ import { Input, TextArea, Select } from '../common/Input';
 import { Button } from '../common/Button';
 import { Modal } from '../common/Modal';
 import { useProductStore } from '../../stores';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const FormContainer = styled.div`
   display: flex;
@@ -28,17 +29,17 @@ const FormGroup = styled.div`
   gap: 20px;
 `;
 
-const CategoryOptions = [
-  { value: 'Kitchen & Dining', label: 'Kitchen & Dining' },
-  { value: 'Clothing', label: 'Clothing' },
-  { value: 'Electronics', label: 'Electronics' },
-  { value: 'Home & Garden', label: 'Home & Garden' },
-  { value: 'Sports & Outdoors', label: 'Sports & Outdoors' },
-  { value: 'Books & Media', label: 'Books & Media' },
-  { value: 'Health & Beauty', label: 'Health & Beauty' },
-  { value: 'Toys & Games', label: 'Toys & Games' },
-  { value: 'Automotive', label: 'Automotive' },
-  { value: 'Other', label: 'Other' },
+const getCategoryOptions = (t: (key: string) => string) => [
+  { value: 'Kitchen & Dining', label: t('products.categories.kitchenDining') },
+  { value: 'Clothing', label: t('products.categories.clothing') },
+  { value: 'Electronics', label: t('products.categories.electronics') },
+  { value: 'Home & Garden', label: t('products.categories.homeGarden') },
+  { value: 'Sports & Outdoors', label: t('products.categories.sportsOutdoors') },
+  { value: 'Books & Media', label: t('products.categories.booksMedia') },
+  { value: 'Health & Beauty', label: t('products.categories.healthBeauty') },
+  { value: 'Toys & Games', label: t('products.categories.toysGames') },
+  { value: 'Automotive', label: t('products.categories.automotive') },
+  { value: 'Other', label: t('products.categories.other') },
 ];
 
 interface ProductFormProps {
@@ -52,6 +53,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   onClose,
   onSuccess
 }) => {
+  const { t } = useLanguage();
   const { addProduct, updateProduct } = useProductStore();
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
@@ -151,27 +153,27 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       <FormContainer>
         <FormGroup>
           <Input
-            label="Product Name *"
+            label={`${t('products.productName')} *`}
             value={formData.name}
             onChange={(e) => handleChange('name', e.target.value)}
             error={errors.name}
             fullWidth
-            placeholder="Enter product name"
+            placeholder={t('products.productName')}
           />
           
           <TextArea
-            label="Description *"
+            label={`${t('products.productDescription')} *`}
             value={formData.description}
             onChange={(e) => handleChange('description', e.target.value)}
             error={errors.description}
             fullWidth
-            placeholder="Enter product description"
+            placeholder={t('products.productDescription')}
           />
         </FormGroup>
 
         <FormRow>
           <Input
-            label="Price *"
+            label={`${t('common.price')} *`}
             type="number"
             step="0.01"
             min="0"
@@ -183,7 +185,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           />
           
           <Input
-            label="Cost"
+            label={t('common.cost')}
             type="number"
             step="0.01"
             min="0"
@@ -197,26 +199,26 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
         <FormRow>
           <Select
-            label="Category *"
+            label={`${t('common.category')} *`}
             value={formData.category}
             onChange={(e) => handleChange('category', e.target.value)}
-            options={CategoryOptions}
+            options={getCategoryOptions(t)}
             error={errors.category}
             fullWidth
           />
           
           <Input
-            label="SKU"
+            label={t('products.sku')}
             value={formData.sku}
             onChange={(e) => handleChange('sku', e.target.value)}
             fullWidth
-            placeholder="Product SKU (optional)"
+            placeholder={t('products.sku')}
           />
         </FormRow>
 
         <FormRow>
           <Input
-            label="Stock Quantity"
+            label={t('products.stockQuantity')}
             type="number"
             min="0"
             value={formData.stockQuantity}
@@ -227,7 +229,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           />
           
           <Input
-            label="Minimum Stock Level"
+            label={t('products.minStockLevel')}
             type="number"
             min="0"
             value={formData.minStockLevel}
@@ -239,7 +241,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         </FormRow>
 
         <Input
-          label="Image URL"
+          label={t('products.imageUrl')}
           type="url"
           value={formData.imageUrl}
           onChange={(e) => handleChange('imageUrl', e.target.value)}
@@ -262,23 +264,24 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   onClose,
   product
 }) => {
+  const { t } = useLanguage();
   const { loading } = useProductStore();
 
   const handleSuccess = () => {
     // Optionally show success message
-    console.log('Product saved successfully');
+    console.log(t('products.productSaved'));
   };
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={product ? 'Edit Product' : 'Add New Product'}
+      title={product ? t('products.editProduct') : t('products.addProduct')}
       size="lg"
       footer={
         <div style={{ display: 'flex', gap: '12px' }}>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button 
             type="submit" 
@@ -286,7 +289,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
             loading={loading}
             disabled={loading}
           >
-            {product ? 'Update Product' : 'Add Product'}
+            {product ? t('common.save') : t('common.add')}
           </Button>
         </div>
       }

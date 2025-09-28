@@ -5,7 +5,9 @@ import { LoginPage } from './pages/LoginPage';
 import { LoadingScreen } from './components/common/LoadingScreen';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 import { useInitializeData } from './hooks/useInitializeData';
+import './i18n';
 import './App.css';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -41,11 +43,13 @@ const AppContent: React.FC = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <NotificationProvider>
-        <AppContent />
-      </NotificationProvider>
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <NotificationProvider>
+          <AppContent />
+        </NotificationProvider>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
 

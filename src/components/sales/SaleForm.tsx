@@ -7,6 +7,7 @@ import { Button } from '../common/Button';
 import { Modal } from '../common/Modal';
 import { useSalesStore } from '../../stores';
 import { useProductStore } from '../../stores';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const FormContainer = styled.div`
   display: flex;
@@ -116,11 +117,11 @@ const TotalRow = styled.div`
   }
 `;
 
-const PaymentMethodOptions = [
-  { value: 'cash', label: 'Cash' },
-  { value: 'card', label: 'Card' },
-  { value: 'online', label: 'Online' },
-  { value: 'other', label: 'Other' },
+const getPaymentMethodOptions = (t: (key: string) => string) => [
+  { value: 'cash', label: t('sales.paymentMethods.cash') },
+  { value: 'card', label: t('sales.paymentMethods.card') },
+  { value: 'online', label: t('sales.paymentMethods.online') },
+  { value: 'other', label: t('sales.paymentMethods.other') },
 ];
 
 interface SaleFormProps {
@@ -134,6 +135,7 @@ export const SaleForm: React.FC<SaleFormProps> = ({
   onClose,
   onSuccess
 }) => {
+  const { t } = useLanguage();
   const { addSale, updateSale } = useSalesStore();
   const { products } = useProductStore();
   const [formData, setFormData] = useState<SaleFormData>({
@@ -285,20 +287,20 @@ export const SaleForm: React.FC<SaleFormProps> = ({
       <FormContainer>
         <FormGroup>
           <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 600, color: '#1e293b' }}>
-            Customer Information
+            {t('sales.customerInfo')}
           </h3>
           
           <FormRow>
             <Input
-              label="Customer Name"
+              label={t('sales.customerName')}
               value={formData.customerName}
               onChange={(e) => handleChange('customerName', e.target.value)}
               fullWidth
-              placeholder="Enter customer name"
+              placeholder={t('sales.customerName')}
             />
             
             <Input
-              label="Customer Email"
+              label={t('sales.customerEmail')}
               type="email"
               value={formData.customerEmail}
               onChange={(e) => handleChange('customerEmail', e.target.value)}
@@ -308,7 +310,7 @@ export const SaleForm: React.FC<SaleFormProps> = ({
           </FormRow>
 
           <Input
-            label="Customer Phone"
+            label={t('sales.customerPhone')}
             type="tel"
             value={formData.customerPhone}
             onChange={(e) => handleChange('customerPhone', e.target.value)}
@@ -319,10 +321,10 @@ export const SaleForm: React.FC<SaleFormProps> = ({
 
         <ItemsSection>
           <ItemsHeader>
-            <ItemsTitle>Sale Items</ItemsTitle>
+            <ItemsTitle>{t('sales.items')}</ItemsTitle>
             <AddItemButton type="button" onClick={addItem}>
               <Plus size={16} />
-              Add Item
+              {t('sales.addItem')}
             </AddItemButton>
           </ItemsHeader>
 
@@ -335,10 +337,27 @@ export const SaleForm: React.FC<SaleFormProps> = ({
               borderRadius: '8px'
             }}>
               <Package size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-              <p>No items added yet. Click "Add Item" to get started.</p>
+              <p>{t('sales.addFirstItem')}</p>
             </div>
           ) : (
-            formData.items.map((item, index) => (
+            <>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: '2fr 1fr 1fr 1fr auto', 
+                gap: '12px', 
+                padding: '8px 0', 
+                borderBottom: '1px solid #e2e8f0',
+                fontWeight: 600,
+                color: '#64748b',
+                fontSize: '14px'
+              }}>
+                <div>{t('sales.product')}</div>
+                <div>{t('sales.quantity')}</div>
+                <div>{t('sales.unitPrice')}</div>
+                <div>{t('sales.total')}</div>
+                <div></div>
+              </div>
+              {formData.items.map((item, index) => (
               <ItemRow key={index}>
                 <Select
                   value={item.productId}
@@ -374,7 +393,8 @@ export const SaleForm: React.FC<SaleFormProps> = ({
                   <Trash2 size={16} />
                 </RemoveItemButton>
               </ItemRow>
-            ))
+              ))}
+            </>
           )}
 
           {errors.items && (
@@ -386,39 +406,39 @@ export const SaleForm: React.FC<SaleFormProps> = ({
 
         <TotalsSection>
           <TotalRow>
-            <span>Subtotal:</span>
+            <span>{t('sales.subtotal')}:</span>
             <span>${formData.subtotal.toFixed(2)}</span>
           </TotalRow>
           <TotalRow>
-            <span>Tax (10%):</span>
+            <span>{t('sales.tax')}:</span>
             <span>${formData.taxAmount.toFixed(2)}</span>
           </TotalRow>
           <TotalRow>
-            <span>Discount:</span>
+            <span>{t('sales.discount')}:</span>
             <span>-${formData.discountAmount.toFixed(2)}</span>
           </TotalRow>
           <TotalRow className="total">
-            <span>Total:</span>
+            <span>{t('sales.total')}:</span>
             <span>${formData.totalAmount.toFixed(2)}</span>
           </TotalRow>
         </TotalsSection>
 
         <FormRow>
           <Select
-            label="Payment Method"
+            label={t('sales.paymentMethod')}
             value={formData.paymentMethod}
             onChange={(e) => handleChange('paymentMethod', e.target.value as any)}
-            options={PaymentMethodOptions}
+            options={getPaymentMethodOptions(t)}
             fullWidth
           />
         </FormRow>
 
         <TextArea
-          label="Notes"
+          label={t('sales.notes')}
           value={formData.notes}
           onChange={(e) => handleChange('notes', e.target.value)}
           fullWidth
-          placeholder="Additional notes (optional)"
+          placeholder={t('sales.additionalNotes')}
         />
       </FormContainer>
     </form>
@@ -436,22 +456,23 @@ export const SaleFormModal: React.FC<SaleFormModalProps> = ({
   onClose,
   sale
 }) => {
+  const { t } = useLanguage();
   const { loading } = useSalesStore();
 
   const handleSuccess = () => {
-    console.log('Sale saved successfully');
+    console.log(t('sales.saleSaved'));
   };
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={sale ? 'Edit Sale' : 'Add New Sale'}
+      title={sale ? t('sales.editSale') : t('sales.addSale')}
       size="xl"
       footer={
         <div style={{ display: 'flex', gap: '12px' }}>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button 
             type="submit" 
@@ -459,7 +480,7 @@ export const SaleFormModal: React.FC<SaleFormModalProps> = ({
             loading={loading}
             disabled={loading}
           >
-            {sale ? 'Update Sale' : 'Add Sale'}
+            {sale ? t('common.save') : t('common.add')}
           </Button>
         </div>
       }
