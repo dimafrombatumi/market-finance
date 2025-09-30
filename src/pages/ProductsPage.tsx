@@ -19,12 +19,23 @@ const Header = styled.div`
   align-items: center;
   flex-wrap: wrap;
   gap: 16px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
 `;
 
 const SearchContainer = styled.div`
   position: relative;
   flex: 1;
-  max-width: 400px;
+  max-width: 250px;
+  
+  @media (max-width: 768px) {
+    max-width: 100%;
+    order: 2;
+  }
 `;
 
 const SearchInput = styled.input`
@@ -64,9 +75,18 @@ const AddButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  min-height: 48px; /* Better touch target */
   
   &:hover {
     background-color: #2563eb;
+  }
+  
+  @media (max-width: 768px) {
+    order: 1;
+    justify-content: center;
+    padding: 14px 20px;
+    font-size: 16px;
+    min-height: 52px;
   }
 `;
 
@@ -74,6 +94,15 @@ const ProductsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 20px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 12px;
+  }
 `;
 
 const ProductCard = styled.div`
@@ -160,6 +189,11 @@ const ProductDetails = styled.div`
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-bottom: 16px;
+  
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
 `;
 
 const DetailItem = styled.div`

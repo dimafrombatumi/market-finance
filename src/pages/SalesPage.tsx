@@ -19,6 +19,12 @@ const Header = styled.div`
   align-items: center;
   flex-wrap: wrap;
   gap: 16px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
 `;
 
 const HeaderTitle = styled.h1`
@@ -26,6 +32,15 @@ const HeaderTitle = styled.h1`
   font-size: 24px;
   font-weight: 600;
   color: #1e293b;
+  
+  @media (max-width: 768px) {
+    font-size: 20px;
+    text-align: center;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 18px;
+  }
 `;
 
 const AddSaleButton = styled.button`
@@ -41,9 +56,17 @@ const AddSaleButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  min-height: 48px; /* Better touch target */
   
   &:hover {
     background-color: #059669;
+  }
+  
+  @media (max-width: 768px) {
+    justify-content: center;
+    padding: 14px 20px;
+    font-size: 16px;
+    min-height: 52px;
   }
 `;
 
@@ -51,6 +74,15 @@ const SalesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: 20px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 12px;
+  }
 `;
 
 const SaleCard = styled.div`

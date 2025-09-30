@@ -19,6 +19,7 @@ const InputBase = styled.input<{ $error?: boolean }>`
   border-radius: 8px;
   font-size: 14px;
   transition: all 0.2s ease;
+  min-height: 48px; /* Better touch target */
   
   &:focus {
     outline: none;
@@ -30,6 +31,17 @@ const InputBase = styled.input<{ $error?: boolean }>`
     background-color: #f9fafb;
     color: #6b7280;
     cursor: not-allowed;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 14px 16px;
+    font-size: 16px; /* Prevent zoom on iOS */
+    min-height: 52px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 12px 14px;
+    min-height: 48px;
   }
 `;
 
@@ -54,6 +66,17 @@ const TextAreaBase = styled.textarea<{ $error?: boolean }>`
     color: #6b7280;
     cursor: not-allowed;
   }
+  
+  @media (max-width: 768px) {
+    padding: 14px 16px;
+    font-size: 16px; /* Prevent zoom on iOS */
+    min-height: 120px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 12px 14px;
+    min-height: 100px;
+  }
 `;
 
 const SelectBase = styled.select<{ $error?: boolean }>`
@@ -64,6 +87,7 @@ const SelectBase = styled.select<{ $error?: boolean }>`
   background-color: white;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-height: 48px; /* Better touch target */
   
   &:focus {
     outline: none;
@@ -75,6 +99,17 @@ const SelectBase = styled.select<{ $error?: boolean }>`
     background-color: #f9fafb;
     color: #6b7280;
     cursor: not-allowed;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 14px 16px;
+    font-size: 16px; /* Prevent zoom on iOS */
+    min-height: 52px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 12px 14px;
+    min-height: 48px;
   }
 `;
 

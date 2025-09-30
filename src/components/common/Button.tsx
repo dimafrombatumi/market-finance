@@ -30,10 +30,40 @@ const ButtonBase = styled.button<{
   cursor: pointer;
   transition: all 0.2s ease;
   width: ${props => props.$fullWidth ? '100%' : 'auto'};
+  min-height: 40px; /* Better touch target */
   
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+  
+  @media (max-width: 768px) {
+    min-height: 48px;
+    font-size: ${props => {
+      switch (props.$size) {
+        case 'sm': return '15px';
+        case 'lg': return '17px';
+        default: return '15px';
+      }
+    }};
+    padding: ${props => {
+      switch (props.$size) {
+        case 'sm': return '10px 14px';
+        case 'lg': return '18px 26px';
+        default: return '12px 18px';
+      }
+    }};
+  }
+  
+  @media (max-width: 480px) {
+    min-height: 44px;
+    font-size: ${props => {
+      switch (props.$size) {
+        case 'sm': return '14px';
+        case 'lg': return '16px';
+        default: return '14px';
+      }
+    }};
   }
   
   ${props => {

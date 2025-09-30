@@ -43,6 +43,20 @@ const ModalContainer = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  
+  @media (max-width: 768px) {
+    max-width: 95vw;
+    max-height: 95vh;
+    border-radius: 8px;
+    margin: 8px;
+  }
+  
+  @media (max-width: 480px) {
+    max-width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+    margin: 0;
+  }
 `;
 
 const ModalHeader = styled.div`
@@ -51,6 +65,16 @@ const ModalHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  
+  @media (max-width: 768px) {
+    padding: 20px 20px 0;
+    margin-bottom: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 16px 16px 0;
+    margin-bottom: 12px;
+  }
 `;
 
 const ModalTitle = styled.h2`
@@ -58,6 +82,14 @@ const ModalTitle = styled.h2`
   font-size: 20px;
   font-weight: 600;
   color: #1e293b;
+  
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 16px;
+  }
 `;
 
 const CloseButton = styled.button`
@@ -68,10 +100,20 @@ const CloseButton = styled.button`
   cursor: pointer;
   color: #64748b;
   transition: all 0.2s ease;
+  min-height: 40px; /* Better touch target */
+  min-width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   
   &:hover {
     background-color: #f1f5f9;
     color: #1e293b;
+  }
+  
+  @media (max-width: 480px) {
+    min-height: 44px;
+    min-width: 44px;
   }
 `;
 
@@ -80,6 +122,14 @@ const ModalContent = styled.div`
   flex: 1;
   overflow-y: auto;
   min-height: 0;
+  
+  @media (max-width: 768px) {
+    padding: 0 20px 20px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0 16px 16px;
+  }
 `;
 
 const ModalFooter = styled.div`
@@ -90,12 +140,19 @@ const ModalFooter = styled.div`
   gap: 12px;
   flex-shrink: 0;
   
+  @media (max-width: 768px) {
+    padding: 16px 20px;
+    gap: 10px;
+  }
+  
   @media (max-width: 480px) {
+    padding: 12px 16px;
     flex-direction: column;
     gap: 8px;
     
     button {
       width: 100%;
+      min-height: 48px; /* Better touch target */
     }
   }
 `;

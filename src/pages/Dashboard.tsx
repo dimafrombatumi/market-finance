@@ -25,6 +25,12 @@ const HeaderSection = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
 `;
 
 const ExportButton = styled.button`
@@ -40,6 +46,7 @@ const ExportButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  min-height: 48px; /* Better touch target */
   
   &:hover {
     background: #2563eb;
@@ -48,6 +55,13 @@ const ExportButton = styled.button`
   &:active {
     background: #1d4ed8;
   }
+  
+  @media (max-width: 768px) {
+    justify-content: center;
+    padding: 14px 20px;
+    font-size: 16px;
+    min-height: 52px;
+  }
 `;
 
 const StatsGrid = styled.div`
@@ -55,6 +69,11 @@ const StatsGrid = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
   margin-bottom: 24px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 `;
 
 const StatCard = styled.div<{ $variant?: 'success' | 'danger' | 'warning' | 'info' }>`
@@ -134,8 +153,13 @@ const StatChange = styled.div<{ $positive?: boolean }>`
 
 const ContentGrid = styled.div`
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1.5fr 1fr;
   gap: 24px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 `;
 
 const Card = styled.div`

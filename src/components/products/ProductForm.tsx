@@ -18,8 +18,13 @@ const FormRow = styled.div`
   grid-template-columns: 1fr 1fr;
   gap: 16px;
   
-  @media (max-width: 640px) {
+  @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 8px;
   }
 `;
 
@@ -27,6 +32,14 @@ const FormGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
+  
+  @media (max-width: 768px) {
+    gap: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 12px;
+  }
 `;
 
 const getCategoryOptions = (t: (key: string) => string) => [

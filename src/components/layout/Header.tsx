@@ -14,6 +14,7 @@ const HeaderContainer = styled.header`
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 64px;
 `;
 
 const PageTitle = styled.div`
@@ -37,24 +38,25 @@ const HeaderActions = styled.div`
   gap: 16px;
 `;
 
-const SearchContainer = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
-`;
-
 const SearchInput = styled.input`
   padding: 8px 12px 8px 40px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 14px;
   width: 250px;
+  min-height: 40px;
   
   &:focus {
     outline: none;
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
+`;
+
+const SearchContainer = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
 `;
 
 const SearchIcon = styled(Search)`
@@ -73,28 +75,16 @@ const IconButton = styled.button`
   cursor: pointer;
   color: #64748b;
   transition: all 0.2s ease;
-  position: relative;
+  min-height: 40px;
+  min-width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   
   &:hover {
     background-color: #f1f5f9;
     color: #1e293b;
   }
-`;
-
-const NotificationBadge = styled.span`
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  background-color: #ef4444;
-  color: white;
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  font-size: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
 `;
 
 const UserProfile = styled.div`
@@ -111,10 +101,21 @@ const UserProfile = styled.div`
   }
 `;
 
-const UserActions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
+const UserInfo = styled.div`
+  text-align: right;
+  
+  .name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1e293b;
+    margin: 0;
+  }
+  
+  .role {
+    font-size: 12px;
+    color: #64748b;
+    margin: 0;
+  }
 `;
 
 const LogoutButton = styled.button`
@@ -137,23 +138,6 @@ const LogoutButton = styled.button`
   }
 `;
 
-const UserInfo = styled.div`
-  text-align: right;
-  
-  .name {
-    font-size: 14px;
-    font-weight: 500;
-    color: #1e293b;
-    margin: 0;
-  }
-  
-  .role {
-    font-size: 12px;
-    color: #64748b;
-    margin: 0;
-  }
-`;
-
 const getPageInfo = (pathname: string, t: (key: string) => string) => {
   switch (pathname) {
     case '/':
@@ -165,6 +149,8 @@ const getPageInfo = (pathname: string, t: (key: string) => string) => {
       return { title: t('navigation.sales'), description: t('sales.title') };
     case '/expenses':
       return { title: t('navigation.expenses'), description: t('transactions.title') };
+    case '/instructors':
+      return { title: t('navigation.instructors'), description: t('instructors.title') };
     case '/reports':
       return { title: t('navigation.reports'), description: t('reports.financialReports') };
     default:
@@ -172,13 +158,16 @@ const getPageInfo = (pathname: string, t: (key: string) => string) => {
   }
 };
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  isSidebarCollapsed?: boolean;
+}
+
+export const Header: React.FC<HeaderProps> = ({ isSidebarCollapsed = false }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { t } = useLanguage();
   const pageInfo = getPageInfo(location.pathname, t);
-  const lowStockCount = 0; // Mock data
 
   const handleLogout = async () => {
     await signOut();
@@ -207,15 +196,12 @@ export const Header: React.FC = () => {
         
         <LanguageSwitcher />
         
-        <IconButton>
+        <IconButton title={t('common.notifications')}>
           <Bell size={20} />
-          {lowStockCount > 0 && (
-            <NotificationBadge>{lowStockCount}</NotificationBadge>
-          )}
         </IconButton>
         
         {user ? (
-          <UserActions>
+          <>
             <UserProfile>
               <UserInfo>
                 <p className="name">{user.email}</p>
@@ -225,13 +211,13 @@ export const Header: React.FC = () => {
             </UserProfile>
             <LogoutButton onClick={handleLogout}>
               <LogOut size={16} />
-              {t('auth.logout')}
+              <span>{t('auth.logout')}</span>
             </LogoutButton>
-          </UserActions>
+          </>
         ) : (
           <LogoutButton onClick={handleLogin}>
             <User size={16} />
-            {t('auth.login')}
+            <span>{t('auth.login')}</span>
           </LogoutButton>
         )}
       </HeaderActions>
