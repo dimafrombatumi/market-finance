@@ -20,6 +20,7 @@ interface ProductState {
   updateStock: (id: string, quantity: number) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  restoreProducts: (products: Product[]) => void;
 }
 
 export const useProductStore = create<ProductState>()(
@@ -210,6 +211,10 @@ export const useProductStore = create<ProductState>()(
 
       setLoading: (loading: boolean) => set({ loading }),
       setError: (error: string | null) => set({ error }),
+
+      restoreProducts: (products: Product[]) => {
+        set({ products, loading: false, error: null });
+      },
     }),
     {
       name: 'product-store',

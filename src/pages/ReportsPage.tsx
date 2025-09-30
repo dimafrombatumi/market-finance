@@ -22,6 +22,17 @@ const DateFilters = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
+
+const ExportButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 24px;
+  
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
+`;
+
 const ExportButton = styled.button`
   display: flex;
   align-items: center;
@@ -109,6 +120,10 @@ const SummaryGrid = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
   margin-bottom: 24px;
+  padding: 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
 const SummaryCard = styled.div`
@@ -116,6 +131,7 @@ const SummaryCard = styled.div`
   background: #f8fafc;
   border-radius: 8px;
   text-align: center;
+  border: 1px solid #e2e8f0;
   
   .value {
     font-size: 24px;
@@ -299,11 +315,14 @@ export const ReportsPage: React.FC = () => {
             onChange={(e) => setEndDate(e.target.value)}
           />
         </FilterGroup>
+      </DateFilters>
+
+      <ExportButtonContainer>
         <ExportButton onClick={handleExportToExcel}>
           <Download size={16} />
           {t('reports.exportToExcel')}
         </ExportButton>
-      </DateFilters>
+      </ExportButtonContainer>
 
       <SummaryGrid>
         <SummaryCard>

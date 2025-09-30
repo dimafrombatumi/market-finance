@@ -23,6 +23,7 @@ interface TransactionState {
   getRecentTransactions: (limit?: number) => Transaction[];
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  restoreTransactions: (transactions: Transaction[]) => void;
 }
 
 export const useTransactionStore = create<TransactionState>()(
@@ -195,6 +196,11 @@ export const useTransactionStore = create<TransactionState>()(
 
       setLoading: (loading: boolean) => set({ loading }),
       setError: (error: string | null) => set({ error }),
+
+      restoreTransactions: (transactions: Transaction[]) => {
+        console.log('Transaction store: restoring', transactions.length, 'transactions');
+        set({ transactions, loading: false, error: null });
+      },
     }),
     {
       name: 'transaction-store',

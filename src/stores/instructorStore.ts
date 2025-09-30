@@ -14,6 +14,7 @@ interface InstructorState {
   deleteInstructor: (id: string) => Promise<void>;
   getInstructorById: (id: string) => Instructor | undefined;
   getActiveInstructors: () => Instructor[];
+  restoreInstructors: (instructors: Instructor[]) => void;
 }
 
 export const useInstructorStore = create<InstructorState>((set, get) => ({
@@ -142,5 +143,9 @@ export const useInstructorStore = create<InstructorState>((set, get) => ({
 
   getActiveInstructors: () => {
     return get().instructors.filter(instructor => instructor.isActive);
+  },
+
+  restoreInstructors: (instructors: Instructor[]) => {
+    set({ instructors, loading: false, error: null });
   },
 }));

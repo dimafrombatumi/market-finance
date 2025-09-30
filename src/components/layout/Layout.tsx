@@ -11,6 +11,7 @@ import { InstructorsPage } from '../../pages/InstructorsPage';
 // import { WorkshopsPage } from '../../pages/WorkshopsPage';
 // import { WorkshopRegistrationsPage } from '../../pages/WorkshopRegistrationsPage';
 import { ReportsPage } from '../../pages/ReportsPage';
+import { BackupPage } from '../../pages/BackupPage';
 
 const LayoutContainer = styled.div`
   display: flex;
@@ -20,13 +21,40 @@ const LayoutContainer = styled.div`
 `;
 
 
-const StyledSidebar = styled.div`
+const StyledSidebar = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isMobileMenuOpen',
+})<{ isMobileMenuOpen: boolean }>`
   @media (max-width: 768px) {
-    display: none; /* Hide sidebar on mobile since we removed mobile menu */
+    display: ${props => props.isMobileMenuOpen ? 'block' : 'none'};
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1000;
+    width: 280px;
   }
 `;
 
-const MainContent = styled.div<{ isSidebarCollapsed: boolean }>`
+const MobileOverlay = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isMobileMenuOpen',
+})<{ isMobileMenuOpen: boolean }>`
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  
+  @media (max-width: 768px) {
+    display: ${props => props.isMobileMenuOpen ? 'block' : 'none'};
+  }
+`;
+
+const MainContent = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isSidebarCollapsed',
+})<{ isSidebarCollapsed: boolean }>`
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -35,7 +63,9 @@ const MainContent = styled.div<{ isSidebarCollapsed: boolean }>`
   transition: all 0.3s ease;
 `;
 
-const ContentArea = styled.main<{ isSidebarCollapsed: boolean }>`
+const ContentArea = styled.main.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isSidebarCollapsed',
+})<{ isSidebarCollapsed: boolean }>`
   flex: 1;
   padding: 24px ${props => props.isSidebarCollapsed ? '16px' : '24px'};
   overflow-y: auto;
@@ -53,24 +83,37 @@ const ContentArea = styled.main<{ isSidebarCollapsed: boolean }>`
 
 export const Layout: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleSidebar = () => {
     console.log('Toggling sidebar, current state:', isSidebarCollapsed);
     setIsSidebarCollapsed(!isSidebarCollapsed);
   };
 
+  const toggleMobileMenu = () => {
+    console.log('Toggling mobile menu, current state:', isMobileMenuOpen);
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   return (
     <LayoutContainer>
-      <StyledSidebar>
+      <MobileOverlay 
+        isMobileMenuOpen={isMobileMenuOpen}
+        onClick={() => setIsMobileMenuOpen(false)}
+      />
+      
+      <StyledSidebar isMobileMenuOpen={isMobileMenuOpen}>
         <Sidebar 
           isCollapsed={isSidebarCollapsed}
           onToggleSidebar={toggleSidebar}
+          onItemClick={() => setIsMobileMenuOpen(false)}
         />
       </StyledSidebar>
       
       <MainContent isSidebarCollapsed={isSidebarCollapsed}>
         <Header 
           isSidebarCollapsed={isSidebarCollapsed}
+          onMobileMenuToggle={toggleMobileMenu}
         />
         <ContentArea isSidebarCollapsed={isSidebarCollapsed}>
           <Routes>
@@ -83,6 +126,7 @@ export const Layout: React.FC = () => {
             {/* <Route path="/workshops" element={<WorkshopsPage />} /> */}
             {/* <Route path="/workshop-registrations" element={<WorkshopRegistrationsPage />} /> */}
             <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/backup" element={<BackupPage />} />
           </Routes>
         </ContentArea>
       </MainContent>

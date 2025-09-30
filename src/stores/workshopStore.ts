@@ -20,6 +20,8 @@ interface WorkshopState {
   updateSchedule: (id: string, schedule: WorkshopScheduleFormData) => Promise<void>;
   deleteSchedule: (id: string) => Promise<void>;
   getSchedulesByWorkshop: (workshopId: string) => WorkshopSchedule[];
+  restoreWorkshops: (workshops: Workshop[]) => void;
+  restoreSchedules: (schedules: WorkshopSchedule[]) => void;
 }
 
 export const useWorkshopStore = create<WorkshopState>((set, get) => ({
@@ -387,5 +389,13 @@ export const useWorkshopStore = create<WorkshopState>((set, get) => ({
 
   getSchedulesByWorkshop: (workshopId) => {
     return get().schedules.filter(schedule => schedule.workshopId === workshopId);
+  },
+
+  restoreWorkshops: (workshops: Workshop[]) => {
+    set({ workshops, loading: false, error: null });
+  },
+
+  restoreSchedules: (schedules: WorkshopSchedule[]) => {
+    set({ schedules, loading: false, error: null });
   },
 }));

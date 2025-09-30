@@ -17,6 +17,7 @@ interface WorkshopRegistrationState {
   getRegistrationsBySchedule: (scheduleId: string) => WorkshopRegistration[];
   updateRegistrationStatus: (id: string, status: WorkshopRegistration['status']) => Promise<void>;
   updatePaymentStatus: (id: string, paymentStatus: WorkshopRegistration['paymentStatus']) => Promise<void>;
+  restoreRegistrations: (registrations: WorkshopRegistration[]) => void;
 }
 
 export const useWorkshopRegistrationStore = create<WorkshopRegistrationState>((set, get) => ({
@@ -307,5 +308,9 @@ export const useWorkshopRegistrationStore = create<WorkshopRegistrationState>((s
         loading: false 
       });
     }
+  },
+
+  restoreRegistrations: (registrations: WorkshopRegistration[]) => {
+    set({ registrations, loading: false, error: null });
   },
 }));

@@ -21,6 +21,7 @@ interface SalesState {
   getSalesByStatus: (status: 'completed' | 'pending' | 'cancelled') => Sale[];
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  restoreSales: (sales: Sale[]) => void;
 }
 
 export const useSalesStore = create<SalesState>()(
@@ -293,6 +294,11 @@ export const useSalesStore = create<SalesState>()(
 
       setLoading: (loading: boolean) => set({ loading }),
       setError: (error: string | null) => set({ error }),
+
+      restoreSales: (sales: Sale[]) => {
+        console.log('Sales store: restoring', sales.length, 'sales');
+        set({ sales, loading: false, error: null });
+      },
     }),
     {
       name: 'sales-store',

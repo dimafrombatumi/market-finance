@@ -8,6 +8,7 @@
     "confirm": "Confirm",
     "loading": "Loading...",
     "search": "Search",
+    "menu": "Menu",
     "name": "Name",
     "description": "Description",
     "price": "Price",
@@ -399,5 +400,36 @@
     "fullyBooked": "Workshop is fully booked",
     "noSpotsAvailable": "No spots available",
     "spotsAvailable": "Available spots: {{count}}"
+  },
+  "backup": {
+    "title": "Data Backup",
+    "createBackup": "Create Backup",
+    "restoreBackup": "Restore Backup",
+    "downloadBackup": "Download Backup",
+    "uploadBackup": "Upload Backup",
+    "backupCreated": "Backup created successfully",
+    "backupRestored": "Backup restored successfully",
+    "backupFailed": "Backup failed",
+    "restoreFailed": "Restore failed",
+    "confirmRestore": "Are you sure you want to restore this backup? This will replace all current data.",
+    "selectBackupFile": "Select backup file",
+    "backupFile": "Backup File",
+    "lastBackup": "Last Backup",
+    "backupSize": "Backup Size",
+    "backupDate": "Backup Date",
+    "noBackups": "No backups available",
+    "createFirstBackup": "Create your first backup to protect your data",
+    "backupInProgress": "Creating backup...",
+    "restoreInProgress": "Restoring backup...",
+    "backupTypes": {
+      "full": "Full Backup",
+      "products": "Products Only",
+      "sales": "Sales Only",
+      "transactions": "Transactions Only",
+      "workshops": "Workshops Only",
+      "instructors": "Instructors Only"
+    },
+    "backupDescription": "Backup all your data to prevent loss",
+    "restoreDescription": "Restore data from a previous backup"
   }
 }

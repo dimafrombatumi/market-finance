@@ -10,13 +10,16 @@ import {
   Store,
   Users,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Database
   // Calendar,
   // UserCheck
 } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
-const SidebarContainer = styled.aside<{ isCollapsed: boolean }>`
+const SidebarContainer = styled.aside.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isCollapsed',
+})<{ isCollapsed: boolean }>`
   width: ${props => props.isCollapsed ? '70px' : '250px'};
   background: linear-gradient(180deg, #1e293b 0%, #334155 100%);
   color: white;
@@ -32,7 +35,9 @@ const SidebarContainer = styled.aside<{ isCollapsed: boolean }>`
   }
 `;
 
-const SidebarHeader = styled.div<{ isCollapsed: boolean }>`
+const SidebarHeader = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isCollapsed',
+})<{ isCollapsed: boolean }>`
   padding: ${props => props.isCollapsed ? '16px 8px' : '24px'};
   border-bottom: 1px solid #475569;
   display: flex;
@@ -41,7 +46,9 @@ const SidebarHeader = styled.div<{ isCollapsed: boolean }>`
   justify-content: center;
 `;
 
-const Logo = styled.div<{ isCollapsed: boolean }>`
+const Logo = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isCollapsed',
+})<{ isCollapsed: boolean }>`
   display: flex;
   align-items: center;
   gap: ${props => props.isCollapsed ? '0' : '12px'};
@@ -60,7 +67,9 @@ const Logo = styled.div<{ isCollapsed: boolean }>`
   }
 `;
 
-const ToggleButton = styled.button<{ isCollapsed: boolean }>`
+const ToggleButton = styled.button.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isCollapsed',
+})<{ isCollapsed: boolean }>`
   padding: 8px;
   border: 1px solid #475569;
   background: rgba(255, 255, 255, 0.1);
@@ -92,7 +101,9 @@ const Navigation = styled.nav`
   padding: 16px 0;
 `;
 
-const NavItem = styled(NavLink)<{ isCollapsed: boolean }>`
+const NavItem = styled(NavLink).withConfig({
+  shouldForwardProp: (prop) => prop !== 'isCollapsed',
+})<{ isCollapsed: boolean }>`
   display: flex;
   align-items: center;
   gap: ${props => props.isCollapsed ? '0' : '12px'};
@@ -152,7 +163,9 @@ const NavItem = styled(NavLink)<{ isCollapsed: boolean }>`
   }
 `;
 
-const ToggleSection = styled.div<{ isCollapsed: boolean }>`
+const ToggleSection = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isCollapsed',
+})<{ isCollapsed: boolean }>`
   padding: ${props => props.isCollapsed ? '12px 8px' : '16px 24px'};
   border-top: 1px solid #475569;
   display: flex;
@@ -160,7 +173,9 @@ const ToggleSection = styled.div<{ isCollapsed: boolean }>`
   align-items: center;
 `;
 
-const Footer = styled.div<{ isCollapsed: boolean }>`
+const Footer = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isCollapsed',
+})<{ isCollapsed: boolean }>`
   padding: ${props => props.isCollapsed ? '16px 8px' : '24px'};
   border-top: 1px solid #475569;
   font-size: 12px;
@@ -181,6 +196,7 @@ const getNavigationItems = (t: (key: string) => string) => [
   // { path: '/workshops', label: t('navigation.workshops'), icon: Calendar },
   // { path: '/workshop-registrations', label: t('navigation.workshopRegistrations'), icon: UserCheck },
   { path: '/reports', label: t('navigation.reports'), icon: BarChart3 },
+  { path: '/backup', label: t('backup.title'), icon: Database },
 ];
 
 interface SidebarProps {
